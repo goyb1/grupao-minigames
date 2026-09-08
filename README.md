@@ -1,6 +1,14 @@
 # Grupão Minigames
 
-## Versão 3.1.1
+## Versão 3.3.0
+
+- Autocompletar de nomes nos quizzes de Futebol e Clash Royale após digitar duas letras.
+- Busca sem diferença entre letras com ou sem acento e também pelo início do sobrenome.
+- Seleção por clique, setas do teclado ou tecla Enter.
+
+- Placar individual em tempo real nos quizzes de Futebol e Clash Royale.
+- Cada jogador que acerta a rodada recebe 1 ponto, inclusive quando várias pessoas acertam juntas.
+- Classificação final exibida nas telas de vitória e derrota; o placar é zerado ao jogar novamente.
 
 - Quiz de Clash Royale com 125 cartas jogáveis, nomes em português e quatro dicas factuais em formato de cartões.
 - Dicas reveladas permanecem visíveis durante a rodada.
