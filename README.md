@@ -1,6 +1,6 @@
 # Grupão Minigames
 
-Plataforma multiplayer do Grupão. Esta primeira versão inclui contas por nickname e senha, perfil com recordes e o Quiz de Futebol cooperativo.
+Plataforma multiplayer do Grupão com contas, perfis, amigos, ranking, histórico, conquistas e quizzes cooperativos.
 
 ## Como funciona
 
@@ -11,6 +11,16 @@ Plataforma multiplayer do Grupão. Esta primeira versão inclui contas por nickn
 5. Todos respondem em até 60 segundos. Um acerto coletivo avança a rodada.
 6. Se o tempo acabar, todas as dicas falharem ou todos desistirem, o grupo perde.
 7. Ao acertar as 200 rodadas, o grupo vence e os recordes são atualizados.
+
+## Recursos da versão 3
+
+- Quiz de Futebol e Quiz de Clash Royale.
+- Salas configuráveis: rodadas, tempo e dificuldade.
+- Chat da sala, sons e animações.
+- Perfil com avatar, nível, XP, conquistas e troca de senha.
+- Ranking separado por categoria, amigos e histórico de partidas.
+- Painel administrativo exclusivo da conta `goyb`, com redefinição de senha e suspensão de contas.
+- Toda derrota revela a resposta correta.
 
 ## Rodar no computador
 
