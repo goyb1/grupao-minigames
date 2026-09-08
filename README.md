@@ -1,0 +1,63 @@
+# Grupão Minigames
+
+Plataforma multiplayer do Grupão. Esta primeira versão inclui contas por nickname e senha, perfil com recordes e o Quiz de Futebol cooperativo.
+
+## Como funciona
+
+1. Crie uma conta ou entre com nickname e senha.
+2. Abra o Quiz de Futebol, escolha um avatar e crie/entre em uma sala.
+3. O dono começa a partida quando houver pelo menos 2 jogadores.
+4. A partida sorteia 200 respostas diferentes dentro de um banco de 500 desafios.
+5. Todos respondem em até 60 segundos. Um acerto coletivo avança a rodada.
+6. Se o tempo acabar, todas as dicas falharem ou todos desistirem, o grupo perde.
+7. Ao acertar as 200 rodadas, o grupo vence e os recordes são atualizados.
+
+## Rodar no computador
+
+Você precisa do Node.js 18 ou superior.
+
+```bash
+npm install
+npm start
+```
+
+Abra:
+
+```text
+http://localhost:3000
+```
+
+Para testar multiplayer no mesmo PC, abra em duas abas/janelas diferentes.
+
+## Colocar em um domínio
+
+Este projeto usa **Socket.IO**, então precisa de uma hospedagem que rode Node.js.
+Hospedagens estáticas simples não bastam.
+
+### Render / Railway / VPS
+
+- Envie esta pasta para um repositório Git.
+- Comando de instalação: `npm install`
+- Comando de inicialização: `npm start`
+- A porta é lida automaticamente pela variável `PORT`.
+- Depois aponte seu domínio para a hospedagem.
+
+## Observações
+
+- Contas e recordes ficam em `data/users.json`. Em produção, configure `DATA_DIR` para um disco persistente.
+- As salas ativas ficam na memória; jogadores podem se reconectar por até 2 minutos.
+- Suporta até 10 jogadores por sala.
+- Senhas são protegidas com `scrypt` e nunca são salvas em texto puro.
+- O arquivo `questions.js` contém o banco de perguntas.
+
+## Estrutura
+
+```text
+quiz_personagens_multiplayer/
+├── package.json
+├── server.js
+└── public/
+    ├── index.html
+    ├── style.css
+    └── app.js
+```
