@@ -1,8 +1,8 @@
 # Grupão Minigames
 
-## Versão 3.1.0
+## Versão 3.1.1
 
-- Quiz de Clash Royale com 131 cartas/personagens e cinco dicas em formato de cartões.
+- Quiz de Clash Royale com 125 cartas jogáveis, nomes em português e quatro dicas factuais em formato de cartões.
 - Dicas reveladas permanecem visíveis durante a rodada.
 - O cronômetro reinicia com o tempo configurado sempre que uma nova dica aparece, tanto no quiz de futebol quanto no de Clash Royale.
 

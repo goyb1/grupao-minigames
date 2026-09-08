@@ -1,0 +1,1002 @@
+[
+  {
+    "key": "archers",
+    "en": "Archers",
+    "pt": "Arqueiras",
+    "elixir": 3,
+    "rarity": "Common",
+    "type": "Troop"
+  },
+  {
+    "key": "archer-queen",
+    "en": "Archer Queen",
+    "pt": "Rainha Arqueira",
+    "elixir": 5,
+    "rarity": "Champion",
+    "type": "Troop"
+  },
+  {
+    "key": "arrows",
+    "en": "Arrows",
+    "pt": "Flechas",
+    "elixir": 3,
+    "rarity": "Common",
+    "type": "Spell"
+  },
+  {
+    "key": "baby-dragon",
+    "en": "Baby Dragon",
+    "pt": "Bebê Dragão",
+    "elixir": 4,
+    "rarity": "Epic",
+    "type": "Troop"
+  },
+  {
+    "key": "balloon",
+    "en": "Balloon",
+    "pt": "Balão",
+    "elixir": 5,
+    "rarity": "Epic",
+    "type": "Troop"
+  },
+  {
+    "key": "bandit",
+    "en": "Bandit",
+    "pt": "Bandida",
+    "elixir": 3,
+    "rarity": "Legendary",
+    "type": "Troop"
+  },
+  {
+    "key": "barbarian-barrel",
+    "en": "Barbarian Barrel",
+    "pt": "Barril de Bárbaro",
+    "elixir": 2,
+    "rarity": "Epic",
+    "type": "Spell"
+  },
+  {
+    "key": "barbarian-hut",
+    "en": "Barbarian Hut",
+    "pt": "Cabana de Bárbaros",
+    "elixir": 6,
+    "rarity": "Rare",
+    "type": "Building"
+  },
+  {
+    "key": "barbarians",
+    "en": "Barbarians",
+    "pt": "Bárbaros",
+    "elixir": 5,
+    "rarity": "Common",
+    "type": "Troop"
+  },
+  {
+    "key": "bats",
+    "en": "Bats",
+    "pt": "Morcegos",
+    "elixir": 2,
+    "rarity": "Common",
+    "type": "Troop"
+  },
+  {
+    "key": "battle-healer",
+    "en": "Battle Healer",
+    "pt": "Curadora Guerreira",
+    "elixir": 4,
+    "rarity": "Rare",
+    "type": "Troop"
+  },
+  {
+    "key": "battle-ram",
+    "en": "Battle Ram",
+    "pt": "Aríete de Batalha",
+    "elixir": 4,
+    "rarity": "Rare",
+    "type": "Troop"
+  },
+  {
+    "key": "berserker",
+    "en": "Berserker",
+    "pt": "Berserker",
+    "elixir": 2,
+    "rarity": "Rare",
+    "type": "Troop"
+  },
+  {
+    "key": "bomb-tower",
+    "en": "Bomb Tower",
+    "pt": "Torre de Bombas",
+    "elixir": 4,
+    "rarity": "Rare",
+    "type": "Building"
+  },
+  {
+    "key": "bomber",
+    "en": "Bomber",
+    "pt": "Bombardeiro",
+    "elixir": 2,
+    "rarity": "Common",
+    "type": "Troop"
+  },
+  {
+    "key": "boss-bandit",
+    "en": "Boss Bandit",
+    "pt": "Bandida Chefe",
+    "elixir": 6,
+    "rarity": "Champion",
+    "type": "Troop"
+  },
+  {
+    "key": "bowler",
+    "en": "Bowler",
+    "pt": "Lançador",
+    "elixir": 5,
+    "rarity": "Epic",
+    "type": "Troop"
+  },
+  {
+    "key": "cannon",
+    "en": "Cannon",
+    "pt": "Canhão",
+    "elixir": 3,
+    "rarity": "Common",
+    "type": "Building"
+  },
+  {
+    "key": "cannon-cart",
+    "en": "Cannon Cart",
+    "pt": "Carrinho de Canhão",
+    "elixir": 5,
+    "rarity": "Epic",
+    "type": "Troop"
+  },
+  {
+    "key": "clone",
+    "en": "Clone",
+    "pt": "Clone",
+    "elixir": 3,
+    "rarity": "Epic",
+    "type": "Spell"
+  },
+  {
+    "key": "dark-prince",
+    "en": "Dark Prince",
+    "pt": "Príncipe das Trevas",
+    "elixir": 4,
+    "rarity": "Epic",
+    "type": "Troop"
+  },
+  {
+    "key": "dart-goblin",
+    "en": "Dart Goblin",
+    "pt": "Goblin com Dardo",
+    "elixir": 3,
+    "rarity": "Rare",
+    "type": "Troop"
+  },
+  {
+    "key": "earthquake",
+    "en": "Earthquake",
+    "pt": "Terremoto",
+    "elixir": 3,
+    "rarity": "Rare",
+    "type": "Spell"
+  },
+  {
+    "key": "electro-dragon",
+    "en": "Electro Dragon",
+    "pt": "Dragão Elétrico",
+    "elixir": 5,
+    "rarity": "Epic",
+    "type": "Troop"
+  },
+  {
+    "key": "electro-giant",
+    "en": "Electro Giant",
+    "pt": "Gigante Elétrico",
+    "elixir": 7,
+    "rarity": "Epic",
+    "type": "Troop"
+  },
+  {
+    "key": "electro-spirit",
+    "en": "Electro Spirit",
+    "pt": "Espírito Elétrico",
+    "elixir": 1,
+    "rarity": "Common",
+    "type": "Troop"
+  },
+  {
+    "key": "electro-wizard",
+    "en": "Electro Wizard",
+    "pt": "Mago Elétrico",
+    "elixir": 4,
+    "rarity": "Legendary",
+    "type": "Troop"
+  },
+  {
+    "key": "elixir-collector",
+    "en": "Elixir Collector",
+    "pt": "Coletor de Elixir",
+    "elixir": 6,
+    "rarity": "Rare",
+    "type": "Building"
+  },
+  {
+    "key": "elixir-golem",
+    "en": "Elixir Golem",
+    "pt": "Golem de Elixir",
+    "elixir": 3,
+    "rarity": "Rare",
+    "type": "Troop"
+  },
+  {
+    "key": "elite-barbarians",
+    "en": "Elite Barbarians",
+    "pt": "Bárbaros de Elite",
+    "elixir": 6,
+    "rarity": "Common",
+    "type": "Troop"
+  },
+  {
+    "key": "executioner",
+    "en": "Executioner",
+    "pt": "Executor",
+    "elixir": 5,
+    "rarity": "Epic",
+    "type": "Troop"
+  },
+  {
+    "key": "fire-spirit",
+    "en": "Fire Spirit",
+    "pt": "Espírito de Fogo",
+    "elixir": 1,
+    "rarity": "Common",
+    "type": "Troop"
+  },
+  {
+    "key": "fireball",
+    "en": "Fireball",
+    "pt": "Bola de Fogo",
+    "elixir": 4,
+    "rarity": "Rare",
+    "type": "Spell"
+  },
+  {
+    "key": "firecracker",
+    "en": "Firecracker",
+    "pt": "Pirotécnica",
+    "elixir": 3,
+    "rarity": "Common",
+    "type": "Troop"
+  },
+  {
+    "key": "fisherman",
+    "en": "Fisherman",
+    "pt": "Pescador",
+    "elixir": 3,
+    "rarity": "Legendary",
+    "type": "Troop"
+  },
+  {
+    "key": "flying-machine",
+    "en": "Flying Machine",
+    "pt": "Máquina Voadora",
+    "elixir": 4,
+    "rarity": "Rare",
+    "type": "Troop"
+  },
+  {
+    "key": "freeze",
+    "en": "Freeze",
+    "pt": "Gelo",
+    "elixir": 4,
+    "rarity": "Epic",
+    "type": "Spell"
+  },
+  {
+    "key": "furnace",
+    "en": "Furnace",
+    "pt": "Fornalha",
+    "elixir": 4,
+    "rarity": "Rare",
+    "type": "Building"
+  },
+  {
+    "key": "giant",
+    "en": "Giant",
+    "pt": "Gigante",
+    "elixir": 5,
+    "rarity": "Rare",
+    "type": "Troop"
+  },
+  {
+    "key": "giant-skeleton",
+    "en": "Giant Skeleton",
+    "pt": "Esqueleto Gigante",
+    "elixir": 6,
+    "rarity": "Epic",
+    "type": "Troop"
+  },
+  {
+    "key": "giant-snowball",
+    "en": "Giant Snowball",
+    "pt": "Bola de Neve",
+    "elixir": 2,
+    "rarity": "Common",
+    "type": "Spell"
+  },
+  {
+    "key": "goblin-barrel",
+    "en": "Goblin Barrel",
+    "pt": "Barril de Goblins",
+    "elixir": 3,
+    "rarity": "Epic",
+    "type": "Spell"
+  },
+  {
+    "key": "goblin-cage",
+    "en": "Goblin Cage",
+    "pt": "Jaula de Goblin",
+    "elixir": 4,
+    "rarity": "Rare",
+    "type": "Building"
+  },
+  {
+    "key": "goblin-curse",
+    "en": "Goblin Curse",
+    "pt": "Maldição Goblin",
+    "elixir": 2,
+    "rarity": "Epic",
+    "type": "Spell"
+  },
+  {
+    "key": "goblin-demolisher",
+    "en": "Goblin Demolisher",
+    "pt": "Demolidor Goblin",
+    "elixir": 4,
+    "rarity": "Rare",
+    "type": "Troop"
+  },
+  {
+    "key": "goblin-drill",
+    "en": "Goblin Drill",
+    "pt": "Escavadeira de Goblins",
+    "elixir": 4,
+    "rarity": "Epic",
+    "type": "Building"
+  },
+  {
+    "key": "goblin-gang",
+    "en": "Goblin Gang",
+    "pt": "Gangue de Goblins",
+    "elixir": 3,
+    "rarity": "Common",
+    "type": "Troop"
+  },
+  {
+    "key": "goblin-giant",
+    "en": "Goblin Giant",
+    "pt": "Goblin Gigante",
+    "elixir": 6,
+    "rarity": "Epic",
+    "type": "Troop"
+  },
+  {
+    "key": "goblin-hut",
+    "en": "Goblin Hut",
+    "pt": "Cabana de Goblins",
+    "elixir": 5,
+    "rarity": "Rare",
+    "type": "Building"
+  },
+  {
+    "key": "goblin-machine",
+    "en": "Goblin Machine",
+    "pt": "Máquina Goblin",
+    "elixir": 5,
+    "rarity": "Legendary",
+    "type": "Troop"
+  },
+  {
+    "key": "goblinstein",
+    "en": "Goblinstein",
+    "pt": "Goblinstein",
+    "elixir": 5,
+    "rarity": "Champion",
+    "type": "Troop"
+  },
+  {
+    "key": "goblins",
+    "en": "Goblins",
+    "pt": "Goblins",
+    "elixir": 2,
+    "rarity": "Common",
+    "type": "Troop"
+  },
+  {
+    "key": "golden-knight",
+    "en": "Golden Knight",
+    "pt": "Cavaleiro Dourado",
+    "elixir": 4,
+    "rarity": "Champion",
+    "type": "Troop"
+  },
+  {
+    "key": "golem",
+    "en": "Golem",
+    "pt": "Golem",
+    "elixir": 8,
+    "rarity": "Epic",
+    "type": "Troop"
+  },
+  {
+    "key": "graveyard",
+    "en": "Graveyard",
+    "pt": "Cemitério",
+    "elixir": 5,
+    "rarity": "Legendary",
+    "type": "Spell"
+  },
+  {
+    "key": "guards",
+    "en": "Guards",
+    "pt": "Guardas",
+    "elixir": 3,
+    "rarity": "Epic",
+    "type": "Troop"
+  },
+  {
+    "key": "heal-spirit",
+    "en": "Heal Spirit",
+    "pt": "Espírito Curador",
+    "elixir": 1,
+    "rarity": "Rare",
+    "type": "Troop"
+  },
+  {
+    "key": "hog-rider",
+    "en": "Hog Rider",
+    "pt": "Corredor",
+    "elixir": 4,
+    "rarity": "Rare",
+    "type": "Troop"
+  },
+  {
+    "key": "hunter",
+    "en": "Hunter",
+    "pt": "Caçador",
+    "elixir": 4,
+    "rarity": "Epic",
+    "type": "Troop"
+  },
+  {
+    "key": "ice-golem",
+    "en": "Ice Golem",
+    "pt": "Golem de Gelo",
+    "elixir": 2,
+    "rarity": "Rare",
+    "type": "Troop"
+  },
+  {
+    "key": "ice-spirit",
+    "en": "Ice Spirit",
+    "pt": "Espírito de Gelo",
+    "elixir": 1,
+    "rarity": "Common",
+    "type": "Troop"
+  },
+  {
+    "key": "ice-wizard",
+    "en": "Ice Wizard",
+    "pt": "Mago de Gelo",
+    "elixir": 3,
+    "rarity": "Legendary",
+    "type": "Troop"
+  },
+  {
+    "key": "inferno-dragon",
+    "en": "Inferno Dragon",
+    "pt": "Dragão Infernal",
+    "elixir": 4,
+    "rarity": "Legendary",
+    "type": "Troop"
+  },
+  {
+    "key": "inferno-tower",
+    "en": "Inferno Tower",
+    "pt": "Torre Inferno",
+    "elixir": 5,
+    "rarity": "Rare",
+    "type": "Building"
+  },
+  {
+    "key": "knight",
+    "en": "Knight",
+    "pt": "Cavaleiro",
+    "elixir": 3,
+    "rarity": "Common",
+    "type": "Troop"
+  },
+  {
+    "key": "lava-hound",
+    "en": "Lava Hound",
+    "pt": "Lava Hound",
+    "elixir": 7,
+    "rarity": "Legendary",
+    "type": "Troop"
+  },
+  {
+    "key": "lightning",
+    "en": "Lightning",
+    "pt": "Relâmpago",
+    "elixir": 6,
+    "rarity": "Epic",
+    "type": "Spell"
+  },
+  {
+    "key": "little-prince",
+    "en": "Little Prince",
+    "pt": "Pequeno Príncipe",
+    "elixir": 3,
+    "rarity": "Champion",
+    "type": "Troop"
+  },
+  {
+    "key": "lumberjack",
+    "en": "Lumberjack",
+    "pt": "Lenhador",
+    "elixir": 4,
+    "rarity": "Legendary",
+    "type": "Troop"
+  },
+  {
+    "key": "magic-archer",
+    "en": "Magic Archer",
+    "pt": "Arqueiro Mágico",
+    "elixir": 4,
+    "rarity": "Legendary",
+    "type": "Troop"
+  },
+  {
+    "key": "mega-knight",
+    "en": "Mega Knight",
+    "pt": "Megacavaleiro",
+    "elixir": 7,
+    "rarity": "Legendary",
+    "type": "Troop"
+  },
+  {
+    "key": "mega-minion",
+    "en": "Mega Minion",
+    "pt": "Megasservo",
+    "elixir": 3,
+    "rarity": "Rare",
+    "type": "Troop"
+  },
+  {
+    "key": "mighty-miner",
+    "en": "Mighty Miner",
+    "pt": "Mineiro Bombado",
+    "elixir": 4,
+    "rarity": "Champion",
+    "type": "Troop"
+  },
+  {
+    "key": "miner",
+    "en": "Miner",
+    "pt": "Mineiro",
+    "elixir": 3,
+    "rarity": "Legendary",
+    "type": "Troop"
+  },
+  {
+    "key": "mini-pekka",
+    "en": "Mini P.E.K.K.A",
+    "pt": "Mini P.E.K.K.A",
+    "elixir": 4,
+    "rarity": "Rare",
+    "type": "Troop"
+  },
+  {
+    "key": "minion-horde",
+    "en": "Minion Horde",
+    "pt": "Horda de Servos",
+    "elixir": 5,
+    "rarity": "Common",
+    "type": "Troop"
+  },
+  {
+    "key": "minions",
+    "en": "Minions",
+    "pt": "Servos",
+    "elixir": 3,
+    "rarity": "Common",
+    "type": "Troop"
+  },
+  {
+    "key": "mirror",
+    "en": "Mirror",
+    "pt": "Espelho",
+    "elixir": 1,
+    "rarity": "Epic",
+    "type": "Spell"
+  },
+  {
+    "key": "monk",
+    "en": "Monk",
+    "pt": "Monge",
+    "elixir": 5,
+    "rarity": "Champion",
+    "type": "Troop"
+  },
+  {
+    "key": "mortar",
+    "en": "Mortar",
+    "pt": "Morteiro",
+    "elixir": 4,
+    "rarity": "Common",
+    "type": "Building"
+  },
+  {
+    "key": "mother-witch",
+    "en": "Mother Witch",
+    "pt": "Bruxa Mãe",
+    "elixir": 4,
+    "rarity": "Legendary",
+    "type": "Troop"
+  },
+  {
+    "key": "musketeer",
+    "en": "Musketeer",
+    "pt": "Mosqueteira",
+    "elixir": 4,
+    "rarity": "Rare",
+    "type": "Troop"
+  },
+  {
+    "key": "night-witch",
+    "en": "Night Witch",
+    "pt": "Bruxa Sombria",
+    "elixir": 4,
+    "rarity": "Legendary",
+    "type": "Troop"
+  },
+  {
+    "key": "pekka",
+    "en": "P.E.K.K.A",
+    "pt": "P.E.K.K.A",
+    "elixir": 7,
+    "rarity": "Epic",
+    "type": "Troop"
+  },
+  {
+    "key": "phoenix",
+    "en": "Phoenix",
+    "pt": "Fênix",
+    "elixir": 4,
+    "rarity": "Legendary",
+    "type": "Troop"
+  },
+  {
+    "key": "poison",
+    "en": "Poison",
+    "pt": "Veneno",
+    "elixir": 4,
+    "rarity": "Epic",
+    "type": "Spell"
+  },
+  {
+    "key": "prince",
+    "en": "Prince",
+    "pt": "Príncipe",
+    "elixir": 5,
+    "rarity": "Epic",
+    "type": "Troop"
+  },
+  {
+    "key": "princess",
+    "en": "Princess",
+    "pt": "Princesa",
+    "elixir": 3,
+    "rarity": "Legendary",
+    "type": "Troop"
+  },
+  {
+    "key": "rage",
+    "en": "Rage",
+    "pt": "Fúria",
+    "elixir": 2,
+    "rarity": "Epic",
+    "type": "Spell"
+  },
+  {
+    "key": "ram-rider",
+    "en": "Ram Rider",
+    "pt": "Domadora de Carneiro",
+    "elixir": 5,
+    "rarity": "Legendary",
+    "type": "Troop"
+  },
+  {
+    "key": "rascals",
+    "en": "Rascals",
+    "pt": "Patifes",
+    "elixir": 5,
+    "rarity": "Common",
+    "type": "Troop"
+  },
+  {
+    "key": "rocket",
+    "en": "Rocket",
+    "pt": "Foguete",
+    "elixir": 6,
+    "rarity": "Rare",
+    "type": "Spell"
+  },
+  {
+    "key": "royal-delivery",
+    "en": "Royal Delivery",
+    "pt": "Encomenda Real",
+    "elixir": 3,
+    "rarity": "Common",
+    "type": "Spell"
+  },
+  {
+    "key": "royal-ghost",
+    "en": "Royal Ghost",
+    "pt": "Fantasma Real",
+    "elixir": 3,
+    "rarity": "Legendary",
+    "type": "Troop"
+  },
+  {
+    "key": "royal-giant",
+    "en": "Royal Giant",
+    "pt": "Gigante Real",
+    "elixir": 6,
+    "rarity": "Common",
+    "type": "Troop"
+  },
+  {
+    "key": "royal-hogs",
+    "en": "Royal Hogs",
+    "pt": "Porcos Reais",
+    "elixir": 5,
+    "rarity": "Rare",
+    "type": "Troop"
+  },
+  {
+    "key": "royal-recruits",
+    "en": "Royal Recruits",
+    "pt": "Recrutas Reais",
+    "elixir": 7,
+    "rarity": "Common",
+    "type": "Troop"
+  },
+  {
+    "key": "rune-giant",
+    "en": "Rune Giant",
+    "pt": "Gigante Rúnica",
+    "elixir": 4,
+    "rarity": "Epic",
+    "type": "Troop"
+  },
+  {
+    "key": "skeleton-army",
+    "en": "Skeleton Army",
+    "pt": "Exército de Esqueletos",
+    "elixir": 3,
+    "rarity": "Epic",
+    "type": "Troop"
+  },
+  {
+    "key": "skeleton-barrel",
+    "en": "Skeleton Barrel",
+    "pt": "Barril de Esqueletos",
+    "elixir": 3,
+    "rarity": "Common",
+    "type": "Troop"
+  },
+  {
+    "key": "skeleton-dragons",
+    "en": "Skeleton Dragons",
+    "pt": "Dragões Esqueleto",
+    "elixir": 4,
+    "rarity": "Common",
+    "type": "Troop"
+  },
+  {
+    "key": "skeleton-king",
+    "en": "Skeleton King",
+    "pt": "Rei Esqueleto",
+    "elixir": 4,
+    "rarity": "Champion",
+    "type": "Troop"
+  },
+  {
+    "key": "skeletons",
+    "en": "Skeletons",
+    "pt": "Esqueletos",
+    "elixir": 1,
+    "rarity": "Common",
+    "type": "Troop"
+  },
+  {
+    "key": "sparky",
+    "en": "Sparky",
+    "pt": "Sparky",
+    "elixir": 6,
+    "rarity": "Legendary",
+    "type": "Troop"
+  },
+  {
+    "key": "spear-goblins",
+    "en": "Spear Goblins",
+    "pt": "Goblins Lanceiros",
+    "elixir": 2,
+    "rarity": "Common",
+    "type": "Troop"
+  },
+  {
+    "key": "spirit-empress",
+    "en": "Spirit Empress",
+    "pt": "Imperatriz Espiritual",
+    "elixir": "3/6",
+    "rarity": "Legendary",
+    "type": "Troop"
+  },
+  {
+    "key": "suspicious-bush",
+    "en": "Suspicious Bush",
+    "pt": "Arbusto Suspeito",
+    "elixir": 2,
+    "rarity": "Rare",
+    "type": "Troop"
+  },
+  {
+    "key": "tesla",
+    "en": "Tesla",
+    "pt": "Tesla",
+    "elixir": 4,
+    "rarity": "Common",
+    "type": "Building"
+  },
+  {
+    "key": "the-log",
+    "en": "The Log",
+    "pt": "O Tronco",
+    "elixir": 2,
+    "rarity": "Legendary",
+    "type": "Spell"
+  },
+  {
+    "key": "three-musketeers",
+    "en": "Three Musketeers",
+    "pt": "Três Mosqueteiras",
+    "elixir": 9,
+    "rarity": "Rare",
+    "type": "Troop"
+  },
+  {
+    "key": "tombstone",
+    "en": "Tombstone",
+    "pt": "Lápide",
+    "elixir": 3,
+    "rarity": "Rare",
+    "type": "Building"
+  },
+  {
+    "key": "tornado",
+    "en": "Tornado",
+    "pt": "Tornado",
+    "elixir": 3,
+    "rarity": "Epic",
+    "type": "Spell"
+  },
+  {
+    "key": "valkyrie",
+    "en": "Valkyrie",
+    "pt": "Valquíria",
+    "elixir": 4,
+    "rarity": "Rare",
+    "type": "Troop"
+  },
+  {
+    "key": "vines",
+    "en": "Vines",
+    "pt": "Cipós",
+    "elixir": 3,
+    "rarity": "Epic",
+    "type": "Spell"
+  },
+  {
+    "key": "void",
+    "en": "Void",
+    "pt": "Vácuo",
+    "elixir": 3,
+    "rarity": "Epic",
+    "type": "Spell"
+  },
+  {
+    "key": "wall-breakers",
+    "en": "Wall Breakers",
+    "pt": "Destruidores de Muros",
+    "elixir": 2,
+    "rarity": "Epic",
+    "type": "Troop"
+  },
+  {
+    "key": "witch",
+    "en": "Witch",
+    "pt": "Bruxa",
+    "elixir": 5,
+    "rarity": "Epic",
+    "type": "Troop"
+  },
+  {
+    "key": "wizard",
+    "en": "Wizard",
+    "pt": "Mago",
+    "elixir": 5,
+    "rarity": "Rare",
+    "type": "Troop"
+  },
+  {
+    "key": "x-bow",
+    "en": "X-Bow",
+    "pt": "X-Besta",
+    "elixir": 6,
+    "rarity": "Epic",
+    "type": "Building"
+  },
+  {
+    "key": "zap",
+    "en": "Zap",
+    "pt": "Zap",
+    "elixir": 2,
+    "rarity": "Common",
+    "type": "Spell"
+  },
+  {
+    "key": "zappies",
+    "en": "Zappies",
+    "pt": "Eletrocutadores",
+    "elixir": 4,
+    "rarity": "Rare",
+    "type": "Troop"
+  },
+  {
+    "key": "cannoneer",
+    "en": "Cannoneer",
+    "pt": "Canhoneiro",
+    "elixir": 0,
+    "rarity": "Epic",
+    "type": "Tower Troop"
+  },
+  {
+    "key": "dagger-duchess",
+    "en": "Dagger Duchess",
+    "pt": "Duquesa das Adagas",
+    "elixir": 0,
+    "rarity": "Legendary",
+    "type": "Tower Troop"
+  },
+  {
+    "key": "royal-chef",
+    "en": "Royal Chef",
+    "pt": "Cozinheiro Real",
+    "elixir": 0,
+    "rarity": "Legendary",
+    "type": "Tower Troop"
+  },
+  {
+    "key": "tower-princess",
+    "en": "Tower Princess",
+    "pt": "Princesa da Torre",
+    "elixir": 0,
+    "rarity": "Common",
+    "type": "Tower Troop"
+  }
+]
