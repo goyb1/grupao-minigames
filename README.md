@@ -44,11 +44,17 @@ Hospedagens estáticas simples não bastam.
 
 ## Observações
 
-- Contas e recordes ficam em `data/users.json`. Em produção, configure `DATA_DIR` para um disco persistente.
+- Em produção, contas e recordes ficam no PostgreSQL indicado por `DATABASE_URL`.
+- A tabela `users` é criada automaticamente na primeira inicialização.
+- Sem `DATABASE_URL`, o projeto usa `data/users.json` apenas para desenvolvimento local.
 - As salas ativas ficam na memória; jogadores podem se reconectar por até 2 minutos.
 - Suporta até 10 jogadores por sala.
 - Senhas são protegidas com `scrypt` e nunca são salvas em texto puro.
 - O arquivo `questions.js` contém o banco de perguntas.
+
+## Banco permanente no Render
+
+Adicione no painel do Web Service a variável de ambiente `DATABASE_URL` com a Session Pooler connection string do Supabase. Nunca coloque essa URL no GitHub.
 
 ## Estrutura
 

@@ -1,20 +1,23 @@
 const express=require('express'),http=require('http'),path=require('path'),fs=require('fs'),crypto=require('crypto');
+const {Pool}=require('pg');
 const {Server}=require('socket.io');
 const {QUESTIONS,normalize}=require('./questions');
 const app=express(),server=http.createServer(app),io=new Server(server);
 const PORT=process.env.PORT||3000,DATA_DIR=process.env.DATA_DIR||path.join(__dirname,'data'),DATA_FILE=path.join(DATA_DIR,'users.json');
 const TOTAL_ROUNDS=200,ROUND_SECONDS=60,rooms=new Map(),sessions=new Map();
+const db=process.env.DATABASE_URL?new Pool({connectionString:process.env.DATABASE_URL,ssl:{rejectUnauthorized:false}}):null;
 app.use(express.json({limit:'20kb'}));app.use(express.static(path.join(__dirname,'public')));
 
-function loadUsers(){try{return JSON.parse(fs.readFileSync(DATA_FILE,'utf8'))}catch{return {}}}let users=loadUsers();
-function saveUsers(){fs.mkdirSync(DATA_DIR,{recursive:true});const t=DATA_FILE+'.tmp';fs.writeFileSync(t,JSON.stringify(users,null,2));fs.renameSync(t,DATA_FILE)}
+function loadUsers(){try{return JSON.parse(fs.readFileSync(DATA_FILE,'utf8'))}catch{return {}}}let users=db?{}:loadUsers();
+async function initUsers(){if(!db)return;await db.query(`CREATE TABLE IF NOT EXISTS users (nickname_key TEXT PRIMARY KEY,nick TEXT NOT NULL,salt TEXT NOT NULL,password_hash TEXT NOT NULL,avatar TEXT NOT NULL DEFAULT '⚽',record INTEGER NOT NULL DEFAULT 0,wins INTEGER NOT NULL DEFAULT 0,games INTEGER NOT NULL DEFAULT 0,created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())`);const result=await db.query('SELECT * FROM users');users={};for(const row of result.rows)users[row.nickname_key]={nick:row.nick,salt:row.salt,hash:row.password_hash,avatar:row.avatar,record:row.record,wins:row.wins,games:row.games,createdAt:row.created_at}}
+async function saveUser(key,u){if(db){await db.query(`INSERT INTO users (nickname_key,nick,salt,password_hash,avatar,record,wins,games) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT (nickname_key) DO UPDATE SET nick=EXCLUDED.nick,salt=EXCLUDED.salt,password_hash=EXCLUDED.password_hash,avatar=EXCLUDED.avatar,record=EXCLUDED.record,wins=EXCLUDED.wins,games=EXCLUDED.games`,[key,u.nick,u.salt,u.hash,u.avatar||'⚽',u.record||0,u.wins||0,u.games||0]);return}fs.mkdirSync(DATA_DIR,{recursive:true});const t=DATA_FILE+'.tmp';fs.writeFileSync(t,JSON.stringify(users,null,2));fs.renameSync(t,DATA_FILE)}
 function hash(password,salt=crypto.randomBytes(16).toString('hex')){return{salt,hash:crypto.scryptSync(password,salt,64).toString('hex')}}
 function equal(a,b){const x=Buffer.from(a,'hex'),y=Buffer.from(b,'hex');return x.length===y.length&&crypto.timingSafeEqual(x,y)}
 function newSession(nick){const token=crypto.randomBytes(32).toString('hex');sessions.set(token,{nick,expires:Date.now()+2592e6});return token}
 function byToken(token=''){const s=sessions.get(token);return s&&s.expires>Date.now()?users[normalize(s.nick)]:null}
 function viewUser(u){return{nick:u.nick,avatar:u.avatar||'⚽',record:u.record||0,wins:u.wins||0,games:u.games||0}}
 function auth(req,res,next){req.user=byToken(String(req.headers.authorization||'').replace(/^Bearer\s+/i,''));if(!req.user)return res.status(401).json({ok:false,error:'Faça login novamente.'});next()}
-app.post('/api/register',(req,res)=>{const nick=String(req.body.nick||'').trim().slice(0,18),password=String(req.body.password||''),key=normalize(nick);if(!/^[\p{L}\p{N}_ .-]{3,18}$/u.test(nick))return res.status(400).json({ok:false,error:'Use um nickname de 3 a 18 caracteres.'});if(password.length<6||password.length>72)return res.status(400).json({ok:false,error:'A senha deve ter entre 6 e 72 caracteres.'});if(users[key])return res.status(409).json({ok:false,error:'Esse nickname já existe.'});users[key]={nick,...hash(password),avatar:'⚽',record:0,wins:0,games:0,createdAt:Date.now()};saveUsers();res.json({ok:true,token:newSession(nick),user:viewUser(users[key])})});
+app.post('/api/register',async(req,res)=>{try{const nick=String(req.body.nick||'').trim().slice(0,18),password=String(req.body.password||''),key=normalize(nick);if(!/^[\p{L}\p{N}_ .-]{3,18}$/u.test(nick))return res.status(400).json({ok:false,error:'Use um nickname de 3 a 18 caracteres.'});if(password.length<6||password.length>72)return res.status(400).json({ok:false,error:'A senha deve ter entre 6 e 72 caracteres.'});if(users[key])return res.status(409).json({ok:false,error:'Esse nickname já existe.'});users[key]={nick,...hash(password),avatar:'⚽',record:0,wins:0,games:0,createdAt:Date.now()};await saveUser(key,users[key]);res.json({ok:true,token:newSession(nick),user:viewUser(users[key])})}catch(error){console.error('Falha no cadastro:',error);res.status(503).json({ok:false,error:'O banco de dados está indisponível. Tente novamente.'})}});
 app.post('/api/login',(req,res)=>{const u=users[normalize(req.body.nick||'')];if(!u||!equal(hash(String(req.body.password||''),u.salt).hash,u.hash))return res.status(401).json({ok:false,error:'Nickname ou senha incorretos.'});res.json({ok:true,token:newSession(u.nick),user:viewUser(u)})});
 app.get('/api/me',auth,(req,res)=>res.json({ok:true,user:viewUser(req.user)}));
 app.post('/api/logout',auth,(req,res)=>{sessions.delete(String(req.headers.authorization||'').replace(/^Bearer\s+/i,''));res.json({ok:true})});
@@ -29,8 +32,8 @@ function reset(r){r.players.forEach(p=>{p.ready=false;p.gaveUp=false;p.guess='';
 function stopTimer(r){if(r.timer)clearTimeout(r.timer);r.timer=null}
 function timer(r){stopTimer(r);r.deadline=Date.now()+ROUND_SECONDS*1000;r.timer=setTimeout(()=>finish(r,'timeout'),ROUND_SECONDS*1000)}
 function startRound(r){if(!rooms.has(r.code))return;if(r.roundIndex>=TOTAL_ROUNDS)return finish(r,'victory');r.question=r.deck[r.roundIndex];r.hintIndex=0;r.currentHint=r.question.hints[0];r.answer='';r.state='playing';reset(r);timer(r);broadcast(r)}
-function records(r,win){for(const p of r.players.values()){const u=users[normalize(p.nick)];if(!u)continue;u.games=(u.games||0)+1;u.record=Math.max(u.record||0,Math.min(r.roundIndex,TOTAL_ROUNDS));if(win)u.wins=(u.wins||0)+1}saveUsers()}
-function finish(r,reason){if(!r||!rooms.has(r.code)||['victory','defeat'].includes(r.state))return;stopTimer(r);r.state=reason==='victory'?'victory':'defeat';r.endReason=reason;r.answer=r.question?.answer||'';records(r,reason==='victory');broadcast(r)}
+async function records(r,win){for(const p of r.players.values()){const key=normalize(p.nick),u=users[key];if(!u)continue;u.games=(u.games||0)+1;u.record=Math.max(u.record||0,Math.min(r.roundIndex,TOTAL_ROUNDS));if(win)u.wins=(u.wins||0)+1;await saveUser(key,u)}}
+function finish(r,reason){if(!r||!rooms.has(r.code)||['victory','defeat'].includes(r.state))return;stopTimer(r);r.state=reason==='victory'?'victory':'defeat';r.endReason=reason;r.answer=r.question?.answer||'';records(r,reason==='victory').catch(error=>console.error('Falha ao salvar recordes:',error));broadcast(r)}
 function evaluate(r){const ps=active(r);if(!ps.length||!ps.every(p=>p.ready))return;if(ps.every(p=>p.gaveUp))return finish(r,'gave-up');const correct=ps.filter(p=>!p.gaveUp&&r.question.aliases.includes(normalize(p.guess)));if(correct.length){correct.forEach(p=>p.correct=true);stopTimer(r);r.answer=r.question.answer;r.state='round-result';broadcast(r);setTimeout(()=>{if(rooms.has(r.code)&&r.state==='round-result'){r.roundIndex++;startRound(r)}},2200);return}r.hintIndex++;if(r.hintIndex>=r.question.hints.length)return finish(r,'wrong');r.currentHint=r.question.hints[r.hintIndex];reset(r);broadcast(r)}
 
 io.use((socket,next)=>{const u=byToken(socket.handshake.auth?.token);if(!u)return next(new Error('unauthorized'));socket.data.user=u;next()});
@@ -46,4 +49,4 @@ io.on('connection',socket=>{
  socket.on('room:leave',()=>socket.disconnect(true));
  socket.on('disconnect',()=>{const r=rooms.get(socket.data.roomCode),p=r?.players.get(socket.id);if(!r||!p)return;p.connected=false;p.ready=false;if(r.hostId===socket.id){const next=active(r)[0];if(next)r.hostId=next.id}broadcast(r);setTimeout(()=>{if(!rooms.has(r.code)||p.connected)return;r.players.delete(p.id);if(!r.players.size){stopTimer(r);rooms.delete(r.code)}else broadcast(r)},120000)});
 });
-server.listen(PORT,()=>console.log(`Grupão Minigames em http://localhost:${PORT}`));
+initUsers().then(()=>server.listen(PORT,()=>console.log(`Grupão Minigames em http://localhost:${PORT} (${db?'PostgreSQL':'arquivo local'})`))).catch(error=>{console.error('Não foi possível conectar ao banco de dados:',error);process.exit(1)});
