@@ -22,3 +22,10 @@
 .suggestion{width:100%;padding:12px 13px;border:0;border-radius:9px;background:transparent;color:var(--text);text-align:left;font-weight:750;cursor:pointer}
 .suggestion:hover,.suggestion.active{background:#46e4ff18;color:var(--cyan)}
 .suggestion+.suggestion{border-top:1px solid #ffffff0a}
+.question-prompt{margin:22px 0 12px;padding:18px 20px;border-left:5px solid #ff4e72;border-radius:14px;background:#211b27;font-size:clamp(1.15rem,2.5vw,1.65rem);font-weight:900;line-height:1.35}
+.hint-request{margin-left:auto;margin-right:14px;padding:10px 13px;border:1px solid #ffc83d66;border-radius:11px;background:#ffc83d18;color:#ffe089;font-weight:900;cursor:pointer}
+.hint-request:disabled{opacity:.45;cursor:not-allowed}
+.hint-list:empty{min-height:70px}
+.hint-list:empty::before{content:'Use o botão DICA se precisar de ajuda.';color:var(--muted);text-align:center;font-weight:700}
+.gamer{background:linear-gradient(145deg,#261738,#10293c)}
+.gamer-btn{background:#b774ff;color:#160821;box-shadow:0 5px 0 #68349f}
