@@ -1,5 +1,15 @@
 # Grupão Minigames
 
+## Versão 4.7.6 — Cartões de personagens sem foto
+
+Personagens sem PNG recebem um cartão com iniciais, nome, posição e cor personalizável, na ficha e na lista do save. Funciona também para NPCs do mestre. Escolha a cor na ficha e clique em Salvar ficha; a prévia acompanha alterações no nome e posição. Um PNG substitui o cartão; remover a foto restaura o cartão e sua cor. Fichas anteriores recebem a cor azul padrão automaticamente.
+
+
+## Versão 4.7.5 — Estilos no modificador
+
+Bônus e penalidades do estilo agora são somados ao modificador, não ao atributo. Atributo total = inicial + evolução (máximo 30). Modificador final = modificador da tabela + estilo. Exemplo: Finalização 12 possui modificador +2; com Matador (+2), permanece 12 e o modificador final fica +4. Fichas antigas são recalculadas ao abrir, sem redistribuir atributos.
+
+
 ## Versão 4.7.4 — Faixa etária da campanha
 
 Personagens devem ter entre 15 e 20 anos (inclusive). Limites aplicados no formulário e no servidor, tanto para participantes quanto para fichas extras. Fichas existentes não são apagadas; idades fora dessa faixa precisam ser corrigidas ao salvar novas alterações.

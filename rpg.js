@@ -26,6 +26,7 @@ function photo(value){
  return 'data:image/png;base64,'+b.toString('base64');
 }
 function validateSheet(input,member,master){
+ const cardColor=input.cardColor??member.sheet?.cardColor??'#46e4ff';if(typeof cardColor!=='string'||!/^#[0-9a-f]{6}$/i.test(cardColor))fail('Escolha uma cor válida para o cartão.');
  const position=clean(input.position,30,true),style=clean(input.style,40,true);
  if(!Object.hasOwn(styles,position)||!Object.hasOwn(styles[position],style))fail('Escolha uma posição e um estilo válidos.');
  const names=attributes(position==='Goleiro'),base={},growth={};
@@ -35,8 +36,15 @@ function validateSheet(input,member,master){
  if(Object.values(growth).reduce((a,b)=>a+b,0)>2*(level-1))fail('Cada nível após o primeiro permite dois pontos de evolução.');
  if(!egos.includes(input.ego))fail('Escolha um Ego.');
  const bonuses={};styles[position][style].forEach((a,i)=>bonuses[a]=(bonuses[a]||0)+[2,2,1,-1,-1][i]);
- const stats=Object.fromEntries(names.map(a=>{const raw=base[a]+(bonuses[a]||0)+growth[a];if(raw>30)fail(`O atributo ${a} não pode ultrapassar 30, incluindo estilo e evolução.`);const value=Math.max(1,raw);return[a,{base:base[a],bonus:bonuses[a]||0,growth:growth[a],value,modifier:Math.floor((value-8)/2)}];}));
- return {name:clean(input.name,60,true),age,height,nationality:clean(input.nationality,60,true),position,style,ego:input.ego,base,growth,level,stats,talents:clean(input.talents,1500),weapon:clean(input.weapon,1500),notes:clean(input.notes,3000),photo:photo(input.photo),approved:master?!!input.approved:false};
+ const stats=Object.fromEntries(names.map(a=>{const raw=base[a]+growth[a];if(raw>30)fail(`O atributo ${a} não pode ultrapassar 30, somando o valor inicial e a evolução.`);const value=Math.max(1,raw);return[a,{base:base[a],bonus:bonuses[a]||0,growth:growth[a],value,modifier:Math.floor((value-8)/2)+(bonuses[a]||0)}];}));
+ return {name:clean(input.name,60,true),age,height,nationality:clean(input.nationality,60,true),position,style,ego:input.ego,base,growth,level,stats,talents:clean(input.talents,1500),weapon:clean(input.weapon,1500),notes:clean(input.notes,3000),cardColor,photo:photo(input.photo),approved:master?!!input.approved:false};
+}
+// Recalcula também fichas antigas sem alterar seus valores iniciais ou evolução.
+function currentSheet(sheet){
+ if(!sheet)return null;
+ const bonus={};(styles[sheet.position]?.[sheet.style]||[]).forEach((a,i)=>bonus[a]=(bonus[a]||0)+[2,2,1,-1,-1][i]);
+ const stats=Object.fromEntries(attributes(sheet.position==='Goleiro').map(a=>{const base=sheet.base[a],growth=sheet.growth?.[a]||0,value=base+growth;return[a,{base,growth,bonus:bonus[a]||0,value,modifier:Math.floor((value-8)/2)+(bonus[a]||0)}];}));
+ return {...sheet,stats};
 }
 function createRpg({app,express,db,auth,normalize,dataDir}){
  const file=path.join(dataDir,'rpg-campaigns.json');let local={};let queue=Promise.resolve();
@@ -49,7 +57,7 @@ function createRpg({app,express,db,auth,normalize,dataDir}){
  function persist(next){fs.mkdirSync(dataDir,{recursive:true});fs.writeFileSync(file+'.tmp',JSON.stringify(next));fs.renameSync(file+'.tmp',file);}
  function key(req){return normalize(req.user.nick);}
  function member(c,k){if(!c||!Object.hasOwn(c.members,k))fail('Você não participa deste save.',403);return c.members[k];}
- function view(c,k){member(c,k);return {...c,extras:Object.fromEntries(Object.entries(c.extras||{}).map(([id,m])=>[id,{...m,rolls:c.owner===k?m.rolls:undefined}])),members:Object.fromEntries(Object.entries(c.members).map(([id,m])=>[id,{...m,rolls:id===k||c.owner===k?m.rolls:undefined}]))};}
+ function view(c,k){member(c,k);return {...c,extras:Object.fromEntries(Object.entries(c.extras||{}).map(([id,m])=>[id,{...m,sheet:currentSheet(m.sheet),rolls:c.owner===k?m.rolls:undefined}])),members:Object.fromEntries(Object.entries(c.members).map(([id,m])=>[id,{...m,sheet:currentSheet(m.sheet),rolls:id===k||c.owner===k?m.rolls:undefined}]))};}
  const router=express.Router();router.use(auth);router.use(express.json({limit:'1500kb'}));
  const route=fn=>async(req,res)=>{try{res.json(await fn(req));}catch(e){if(!e.status)console.error('RPG:',e);res.status(e.status||503).json({ok:false,error:e.status?e.message:'Não foi possível salvar agora. Tente novamente.'});}};
  router.get('/catalog',route(async()=>({styles,egos,common,line:attributes(false),goalkeeper:attributes(true)})));
