@@ -1,8 +1,13 @@
 # Grupão Minigames
 
+## Versão 4.7.2 — Atributos manuais e evolução
+
+Não há mais rolagens nem escolha de conjuntos no site. Preencha cada atributo inicial com um inteiro de 1 a 12, conforme os dados rolados fora do site. Na coluna Evolução (+), o mestre adiciona os pontos ganhos. O total de cada atributo, incluindo bônus de estilo, não pode ultrapassar 30; o servidor rejeita valores acima do limite. Mantida a regra de dois pontos de evolução por nível após o primeiro. Funciona para participantes e fichas extras. Fichas anteriores preservam seus atributos, fotos e evolução; dados de rolagens antigos são ignorados.
+
+
 ## Versão 4.7.1 — Fichas extras do mestre
 
-Dentro do save, o mestre pode usar **Criar ficha extra** para cadastrar os personagens adicionais dos dois times. Cada personagem tem dois conjuntos de dados próprios, foto PNG e ficha completa. Apenas o mestre cria e edita essas fichas; participantes podem consultar fichas já preenchidas. As fichas extras não ocupam vagas de participantes e ficam salvas junto com a campanha. Até 30 personagens extras por save. Saves anteriores continuam funcionando sem conversão manual. A simulação das partidas ainda não faz parte desta versão.
+Dentro do save, o mestre pode usar **Criar ficha extra** para cadastrar os personagens adicionais dos dois times. Cada personagem tem foto PNG e ficha completa. Apenas o mestre cria e edita essas fichas; participantes podem consultar fichas já preenchidas. As fichas extras não ocupam vagas de participantes e ficam salvas junto com a campanha. Até 30 personagens extras por save. Saves anteriores continuam funcionando sem conversão manual. A simulação das partidas ainda não faz parte desta versão.
 
 
 ## Versão 4.7.0 — Fichas e saves de RPG
@@ -11,7 +16,7 @@ Abra **BlueLocker → Abrir saves** no menu de minigames.
 
 1. O mestre cria um save e compartilha seu código de 16 caracteres.
 2. Os participantes entram com suas próprias contas e criam uma ficha por campanha.
-3. A criação gera dois conjuntos de 11d12 no servidor, uma única vez. Escolha um conjunto e distribua os números respeitando suas repetições.
+3. Preencha os 11 atributos iniciais manualmente, de 1 a 12.
 4. Escolha posição, estilo e Ego. Os 11 atributos mudam conforme a posição; os bônus dos 23 estilos e os modificadores são calculados automaticamente.
 5. Envie um PNG de até 1 MB, com no máximo 2048 × 2048 pixels. Transparência preservada.
 6. Registre talentos, habilidade do estilo, Arma Secreta e história nos campos de texto. São registros para o mestre, ainda sem execução automática dos efeitos.
