@@ -29,3 +29,51 @@
 .hint-list:empty::before{content:'Use o botão DICA se precisar de ajuda.';color:var(--muted);text-align:center;font-weight:700}
 .gamer{background:linear-gradient(145deg,#261738,#10293c)}
 .gamer-btn{background:#b774ff;color:#160821;box-shadow:0 5px 0 #68349f}
+.games-guess-panel{display:grid;gap:11px;margin-top:18px;padding:15px;border:1px solid #b774ff55;border-radius:16px;background:#140f20}
+.guess-chat-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.guess-chat-head b{color:#d5aaff;font-size:.85rem;letter-spacing:.06em}
+.guess-chat-head span{color:var(--muted);font-size:.76rem}
+.games-guess-list{display:grid;align-content:start;gap:8px;min-height:135px;max-height:280px;overflow-y:auto;padding:4px}
+.games-guess{display:grid;grid-template-columns:36px minmax(0,1fr) auto;align-items:center;gap:9px;padding:9px 11px;border:1px solid #ffffff12;border-radius:12px;background:#ffffff08}
+.games-guess>span{font-size:1.35rem}
+.games-guess div{min-width:0}
+.games-guess b{display:block;color:#d5aaff;font-size:.76rem}
+.games-guess p{margin:2px 0 0;overflow-wrap:anywhere}
+.games-guess>strong{color:var(--lime);font-size:.72rem;white-space:nowrap}
+.games-guess.correct{border-color:#c7ff4380;background:#c7ff4314}
+.games-guess-form{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px}
+.games-guess-form input{width:100%;font-size:1rem}
+.games-guess-form .btn{box-shadow:none}
+.round-countdown{display:flex;align-items:center;justify-content:center;gap:9px;margin-top:12px;padding:13px 16px;border:1px solid #46e4ff55;border-radius:13px;background:#46e4ff10;color:#b9f6ff;text-align:center}
+.round-countdown span{font-size:1.25rem}
+.round-countdown b{font-size:.9rem}
+.games{grid-template-columns:repeat(2,minmax(0,1fr))}
+.football{grid-column:auto}
+.impostor-card{background:linear-gradient(145deg,#331b35,#172b42);border-color:#ff6aa54a}
+.impostor-btn{background:#ff6aa5;color:#260817;box-shadow:0 5px 0 #9c315e}
+.impostor-layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px;max-width:1180px;margin:24px auto;padding:0 22px 34px}
+.impostor-stage{padding:24px;min-width:0}
+.role-card{padding:24px;border:1px solid #ff6aa54d;border-radius:18px;background:linear-gradient(145deg,#ff6aa516,#46e4ff0b);text-align:center}
+.role-card small{display:block;color:#73ebff;font-weight:900;letter-spacing:.13em}
+.role-card h2{margin:9px 0 4px;font-size:clamp(1.35rem,3vw,2rem)}
+.role-card strong{display:block;color:#ff8fba;font-size:clamp(1.55rem,4vw,2.7rem);overflow-wrap:anywhere}
+.role-card p{margin:11px 0 0;color:var(--muted)}
+.impostor-clues{display:grid;gap:9px;margin:18px 0;max-height:340px;overflow:auto}
+.clue-row{display:grid;grid-template-columns:42px 1fr;align-items:center;gap:10px;padding:12px 14px;border:1px solid var(--line);border-left:4px solid var(--cyan);border-radius:12px;background:#ffffff08}
+.clue-row>span{font-size:1.55rem}
+.clue-row div{display:grid;gap:3px}
+.clue-row small{color:var(--muted);font-size:.66rem;font-weight:900;letter-spacing:.07em}
+.clue-row b{overflow-wrap:anywhere}
+.party-form{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:10px;margin-top:18px}
+.party-form label{display:grid;gap:7px;color:var(--muted);font-size:.72rem;font-weight:900;letter-spacing:.08em}
+.party-form input{width:100%}
+.vote-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:13px 0}
+.vote-player{display:flex;align-items:center;gap:9px;padding:13px;border:1px solid var(--line);border-radius:12px;background:#ffffff08;color:var(--text);cursor:pointer}
+.vote-player:hover:not(:disabled){border-color:#ff6aa5;background:#ff6aa516}
+.vote-player:disabled{opacity:.48;cursor:not-allowed}
+.vote-player span{font-size:1.5rem}
+.party-result{display:grid;gap:9px;margin-top:18px;padding:20px;border:1px solid #c7ff4366;border-radius:16px;background:#c7ff4310;text-align:center}
+.party-result strong{color:var(--lime);font-size:1.15rem}
+.party-result span{color:var(--muted)}
+@media(max-width:900px){.impostor-layout{grid-template-columns:1fr}.games{grid-template-columns:repeat(2,minmax(0,1fr))}.football{grid-column:auto}}
+@media(max-width:600px){.games{grid-template-columns:1fr}.party-form,.games-guess-form{grid-template-columns:1fr}.guess-chat-head{align-items:flex-start;flex-direction:column}.games-guess{grid-template-columns:32px minmax(0,1fr)}.games-guess>strong{grid-column:2}.vote-grid{grid-template-columns:1fr}.impostor-layout{padding:0 12px 24px}.impostor-stage{padding:15px}.role-card{padding:19px 13px}}
