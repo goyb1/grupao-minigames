@@ -1,6 +1,12 @@
 # Grupão Minigames
 
-## Versão 3.3.0
+## Versão 4.0.0 — Etapa 1
+
+- Novo Quiz Gamer multiplayer com 50 perguntas sobre personagens, lançamentos, empresas, consoles e mecânicas.
+- Cada pergunta possui cinco dicas opcionais acionadas pelo botão DICA.
+- Palpites errados permitem uma nova tentativa enquanto ainda houver tempo; quem acerta recebe 1 ponto.
+- Explicação da resposta, placar da partida, recorde próprio, ranking e histórico do Quiz Gamer.
+- Migração automática do PostgreSQL para guardar o novo recorde sem apagar contas existentes.
 
 - Autocompletar de nomes nos quizzes de Futebol e Clash Royale após digitar duas letras.
 - Busca sem diferença entre letras com ou sem acento e também pelo início do sobrenome.
