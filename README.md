@@ -1,5 +1,23 @@
 # Grupão Minigames
 
+## Versão 4.4.1 — Correção de navegação e cronômetros
+
+- Enviar palpites no Quiz Gamer não faz mais a página voltar para o topo.
+- A contagem entre rodadas usa o tempo restante enviado pelo servidor, eliminando diferenças entre os relógios do servidor e do navegador.
+- O círculo do cronômetro também mostra 10 segundos após acertos no Quiz Gamer e 5 segundos em Futebol e Clash Royale.
+- A tela de acerto permanece visível até a contagem terminar por completo.
+
+## Versão 4.4.0 — Etapa 3: Batalha de Perguntas
+
+- Novo minigame competitivo para 2 a 10 jogadores e partidas de 5 a 30 perguntas.
+- Banco inicial com 60 perguntas de jogos, ciências, geografia, matemática, história, português, esportes e conhecimentos gerais.
+- Quatro alternativas embaralhadas e 20 segundos para responder.
+- Respostas simultâneas e secretas até o fim da rodada.
+- Pontuação por acerto, bônus pela rapidez e bônus por sequência de acertos.
+- Placar ao vivo com pontuação e sequência atual de cada jogador.
+- Resultado mostra a alternativa correta por 6 segundos antes da próxima pergunta.
+- Tela final anuncia o vencedor ou empate e mantém a opção Jogar de Novo.
+
 ## Versão 4.3.0 — Palpites ao vivo no Quiz Gamer
 
 - O botão Pronto foi substituído por um chat de palpites exclusivo no Quiz Gamer.
