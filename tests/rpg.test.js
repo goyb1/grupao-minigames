@@ -58,11 +58,13 @@ test('mestre cria múltiplas fichas extras, com acesso protegido e persistência
 
 test('atributos manuais até 12 e evolução final até 30',()=>{
  const {validateSheet}=require('../rpg');
- const b={name:'Teste',nationality:'Brasil',age:20,height:180,position:'Atacante',style:'Matador',ego:'Rival',base:Object.fromEntries(attributes(false).map(a=>[a,12])),growth:{Finalização:16},level:9};
+ const b={name:'Teste',nationality:'Brasil',age:20,height:180,position:'Atacante',style:'Matador',ego:'Rival',base:Object.fromEntries(attributes(false).map(a=>[a,12])),growth:{Finalização:18},level:10};
  const sheet=validateSheet(b,{sheet:null},true);
- assert.equal(sheet.stats.Finalização.value,30);assert.equal(sheet.stats.Finalização.modifier,11);
- assert.throws(()=>validateSheet({...b,growth:{Finalização:17},level:10},{sheet:null},true),/ultrapassar 30/);
+ assert.equal(sheet.stats.Finalização.value,30);assert.equal(sheet.stats.Finalização.modifier,13);
+ assert.throws(()=>validateSheet({...b,growth:{Finalização:19},level:11},{sheet:null},true),/ultrapassar 30/);
  for(const n of [0,13,1.5])assert.throws(()=>validateSheet({...b,base:{...b.base,Passe:n}},{sheet:null},true));
  const player=validateSheet({...b,growth:{Finalização:16}},{sheet:null},false);assert.equal(player.growth.Finalização,0);assert.equal(player.level,1);
  const legacy=validateSheet({...b,growth:{},level:1},{rolls:[[1,2]],sheet:null},true);assert.equal(legacy.base.Passe,12);
 });
+
+ test('estilo altera o modificador, mantendo o atributo',()=>{const {validateSheet}=require('../rpg');const b={name:'Teste',nationality:'Brasil',age:18,height:175,position:'Atacante',style:'Matador',ego:'Rival',base:Object.fromEntries(attributes(false).map(a=>[a,12])),growth:{},level:1};const s=validateSheet(b,{sheet:null},true);assert.equal(s.stats.Finalização.value,12);assert.equal(s.stats.Finalização.modifier,4);assert.equal(s.stats.Defesa.value,12);assert.equal(s.stats.Defesa.modifier,1);});
