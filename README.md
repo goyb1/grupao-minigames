@@ -1,5 +1,29 @@
 # Grupão Minigames
 
+## Versão 4.6.0 — Quem Sou Eu?
+
+- Sexto minijogo, para 2 a 10 jogadores, com 200 personagens famosos da ficção.
+- Curadoria com preferência por coadjuvantes e escolhas menos óbvias, incluindo Perry, o Ornitorrinco.
+- Cada jogador recebe uma identidade diferente. Nenhum personagem se repete na mesma partida.
+- Você vê os personagens dos amigos; o seu nome, obra e aliases não são enviados a você antes do acerto ou da revelação.
+- De 1 a 10 rodadas (padrão: 3). Cada pessoa tem até 10 turnos em cada rodada.
+- Na sua vez, faça uma pergunta de sim/não OU tente adivinhar o nome. Perguntar, errar ou passar consome um turno.
+- O amigo indicado responde com Sim, Não ou Não sei. Não há respostas automáticas por IA.
+- 60 segundos para perguntar/adivinhar, 30 para responder, 3 de intervalo entre turnos e 8 de revelação ao fim da rodada.
+- Cada personagem descoberto vale 1 ponto. Quem já acertou continua ajudando a responder.
+- A rodada acaba quando todos os jogadores conectados acertam ou usam seus 10 turnos.
+- Os timers e a validação dos palpites são controlados pelo servidor. Acentos, espaços e pontuação são ignorados nos nomes; aliases comuns são aceitos.
+- Com menos de 2 conectados, a partida pausa por até 2 minutos. A reconexão mantém a identidade e o progresso.
+- Placar final, empates, Jogar de Novo, XP e histórico no PostgreSQL. Apenas os líderes com ao menos 1 ponto recebem a vitória.
+- O histórico passa a identificar corretamente todos os minijogos pelo nome.
+- Sem alteração de esquema do banco, credenciais ou recordes existentes. O ZIP não inclui contas locais, dependências instaladas nem segredos.
+
+Arquivos novos: `who_characters.js` (banco privado), `who_game.js` (regras), `public/who.js` e `public/who.css` (interface).
+
+Para verificar as regras do novo modo, execute `npm test` (14 testes, sem acesso ao banco de produção).
+Em atualizações, preserve o arquivo `data/users.json` se você usa armazenamento local. Em produção, mantenha a mesma `DATABASE_URL`.
+
+
 ## Versão 4.5.0 — Última chance com alternativas no Futebol
 
 - A última dica do Quiz de Futebol agora vira uma questão com quatro alternativas A, B, C e D.
