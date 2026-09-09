@@ -1,5 +1,34 @@
 # Grupão Minigames
 
+## Versão 4.3.0 — Palpites ao vivo no Quiz Gamer
+
+- O botão Pronto foi substituído por um chat de palpites exclusivo no Quiz Gamer.
+- Todos podem enviar respostas ilimitadas enquanto o cronômetro estiver rodando.
+- Os palpites aparecem em tempo real para todos os jogadores da sala.
+- A primeira pessoa que acertar recebe 1 ponto e encerra a rodada imediatamente.
+- O histórico de palpites é limpo quando começa uma nova pergunta.
+- Futebol e Clash Royale continuam usando o sistema de confirmar com Pronto.
+- Depois de um acerto, a resposta permanece na tela por 10 segundos no Quiz Gamer e por 5 segundos nos quizzes de Futebol e Clash Royale.
+- Uma mensagem com contagem regressiva avisa quando a próxima rodada começará.
+
+## Versão 4.2.0 — Quiz Gamer ampliado
+
+- O Quiz Gamer agora possui 550 perguntas únicas: as 50 anteriores e 500 novas.
+- Os novos desafios abrangem 100 jogos e cinco categorias factuais por título.
+- Há perguntas sobre o jogo, ano de lançamento, desenvolvedora, protagonista e cenário.
+- Todas as perguntas continuam com resposta, explicação e cinco dicas opcionais.
+- Uma mesma pergunta não se repete dentro da partida.
+
+## Versão 4.1.0 — Etapa 2
+
+- Novo minigame multiplayer **O Impostor**, para salas de 3 a 10 jogadores.
+- Banco com 60 palavras divididas entre jogos, futebol, comidas, animais, objetos e lugares.
+- Cada rodada escolhe um impostor secreto; os demais recebem a mesma palavra.
+- Fases automáticas de dicas individuais, votação, tentativa final do impostor e revelação do resultado.
+- Placar próprio: quem votar corretamente ganha 1 ponto; o impostor ganha 2 ao escapar ou descobrir a palavra.
+- Cronômetros separados para dar a dica, votar e responder, além de reconexão durante a sala.
+- A palavra e o nome do impostor só são revelados ao fim da rodada.
+
 ## Versão 4.0.0 — Etapa 1
 
 - Novo Quiz Gamer multiplayer com 50 perguntas sobre personagens, lançamentos, empresas, consoles e mecânicas.

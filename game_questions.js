@@ -1,6 +1,7 @@
 const { normalize } = require('./questions');
+const { EXTRA_GAME_ROWS } = require('./game_questions_extra');
 
-const rows = [
+const baseRows = [
 ['Qual é a evolução do Pikachu?','Raichu',['Raichu de Alola'],['É um Pokémon do tipo Elétrico.','Também possui uma forma regional.','Evolui usando uma Pedra do Trovão.','Tem orelhas grandes e uma cauda longa.','Seu nome começa com R.'],'Pikachu evolui para Raichu quando recebe uma Pedra do Trovão.'],
 ['Em que ano Minecraft foi lançado oficialmente?','2011',[],['Foi lançado na década de 2010.','O acesso antecipado começou antes do lançamento oficial.','Foi lançado antes de 2012.','Foi lançado depois de 2010.','O ano termina com 11.'],'A versão completa de Minecraft foi lançada em 2011.'],
 ['Qual empresa criou Fortnite?','Epic Games',['Epic'],['É uma empresa dos Estados Unidos.','Também desenvolve uma conhecida ferramenta gráfica.','É responsável pela Unreal Engine.','Seu nome começa com E.','O segundo termo é Games.'],'Fortnite foi desenvolvido e publicado pela Epic Games.'],
@@ -52,6 +53,8 @@ const rows = [
 ['Qual jogo de corrida da Nintendo usa cascos e bananas como itens?','Mario Kart',[],['Reúne personagens do Reino dos Cogumelos.','Possui pistas coloridas e atalhos.','Um casco azul persegue quem está na frente.','É uma série da Nintendo.','Seu nome termina com Kart.'],'Mario Kart utiliza itens para alterar as corridas.'],
 ['Qual é o nome da plataforma de distribuição de jogos criada pela Valve?','Steam',[],['É muito usada em computadores.','Possui biblioteca, loja e lista de amigos.','É administrada pela Valve.','Seu nome significa vapor em inglês.','Começa com S.'],'Steam é a plataforma de jogos da Valve.']
 ];
+
+const rows=[...baseRows,...EXTRA_GAME_ROWS];
 
 const GAME_QUESTIONS=rows.map((r,i)=>({id:`games-${i+1}`,prompt:r[0],answer:r[1],aliases:[...new Set([r[1],...r[2]].map(normalize))],hints:r[3],explanation:r[4]}));
 module.exports={GAME_QUESTIONS};
