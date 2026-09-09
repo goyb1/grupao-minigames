@@ -1,5 +1,10 @@
 # Grupão Minigames
 
+## Versão 4.7.1 — Fichas extras do mestre
+
+Dentro do save, o mestre pode usar **Criar ficha extra** para cadastrar os personagens adicionais dos dois times. Cada personagem tem dois conjuntos de dados próprios, foto PNG e ficha completa. Apenas o mestre cria e edita essas fichas; participantes podem consultar fichas já preenchidas. As fichas extras não ocupam vagas de participantes e ficam salvas junto com a campanha. Até 30 personagens extras por save. Saves anteriores continuam funcionando sem conversão manual. A simulação das partidas ainda não faz parte desta versão.
+
+
 ## Versão 4.7.0 — Fichas e saves de RPG
 
 Abra **BlueLocker → Abrir saves** no menu de minigames.
