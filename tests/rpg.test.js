@@ -32,3 +32,27 @@ test('saves, fichas, permissões, foto e retomada após reinicialização',async
  }finally{await new Promise(resolve=>running.server.close(resolve));fs.rmSync(dir,{recursive:true,force:true});}
 });
 test('catálogo e validação de PNG',()=>{assert.equal(Object.values(styles).reduce((n,s)=>n+Object.keys(s).length,0),23);assert.equal(attributes(false).length,11);assert.equal(attributes(true).length,11);assert.equal(photo(png),png);assert.throws(()=>photo(png.slice(0,-8)));assert.throws(()=>photo('data:image/svg+xml;base64,AAAA'));});
+
+test('mestre cria múltiplas fichas extras, com acesso protegido e persistência',async()=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'grupao-extras-'));let running=await boot(dir);
+ const call=async(user,url,method='GET',body)=>{const r=await fetch(running.url+'/api/rpg'+url,{method,headers:{'x-user':user,'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined});return{status:r.status,data:await r.json()};};
+ try{
+ const initial=(await call('mestre','/campaigns','POST',{name:'7 contra 7'})).data;
+ const base='/campaigns/'+initial.id;
+ await call('amigo','/join','POST',{code:initial.id});
+ assert.equal((await call('amigo',base+'/extras','POST',{name:'Não autorizado'})).status,403);
+ assert.equal((await call('intruso',base+'/extras','POST',{name:'Não autorizado'})).status,403);
+ let c;
+ for(let i=0;i<11;i++){const r=await call('mestre',base+'/extras','POST',{name:'Extra '+i});assert.equal(r.status,200);c=r.data;}
+ assert.equal(Object.keys(c.extras).length,11);assert.equal(Object.keys(c.members).length,2);
+ const ids=Object.keys(c.extras),id=ids[0],m=c.extras[id];
+ const body={name:'Goleiro extra',nationality:'Brasil',age:20,height:180,position:'Goleiro',style:'Muralha',ego:'Rival',selected:0,base:Object.fromEntries(attributes(true).map((a,i)=>[a,m.rolls[0][i]])),growth:{},level:1,approved:true,photo:png};
+ assert.equal((await call('amigo',base+'/sheets/'+encodeURIComponent(id),'PUT',body)).status,403);
+ assert.equal((await call('mestre',base+'/sheets/'+encodeURIComponent(id),'PUT',body)).status,200);
+ const visible=(await call('amigo',base)).data;
+ assert.equal(visible.extras[id].sheet.name,'Goleiro extra');assert.equal(visible.extras[id].rolls,undefined);
+ assert.equal(visible.extras[ids[1]].sheet,null);
+ await new Promise(resolve=>running.server.close(resolve));running=await boot(dir);
+ c=(await call('mestre',base)).data;assert.equal(Object.keys(c.extras).length,11);assert.equal(c.extras[id].sheet.photo,png);assert.deepEqual(c.extras[id].rolls,m.rolls);
+ }finally{await new Promise(resolve=>running.server.close(resolve));fs.rmSync(dir,{recursive:true,force:true});}
+});
