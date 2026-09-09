@@ -1,5 +1,15 @@
 # Grupão Minigames
 
+## Versão 4.7.4 — Faixa etária da campanha
+
+Personagens devem ter entre 15 e 20 anos (inclusive). Limites aplicados no formulário e no servidor, tanto para participantes quanto para fichas extras. Fichas existentes não são apagadas; idades fora dessa faixa precisam ser corrigidas ao salvar novas alterações.
+
+
+## Versão 4.7.3 — Idade dos personagens
+
+Idade mínima de 15 anos no formulário e na validação do servidor, incluindo fichas extras do mestre.
+
+
 ## Versão 4.7.2 — Atributos manuais e evolução
 
 Não há mais rolagens nem escolha de conjuntos no site. Preencha cada atributo inicial com um inteiro de 1 a 12, conforme os dados rolados fora do site. Na coluna Evolução (+), o mestre adiciona os pontos ganhos. O total de cada atributo, incluindo bônus de estilo, não pode ultrapassar 30; o servidor rejeita valores acima do limite. Mantida a regra de dois pontos de evolução por nível após o primeiro. Funciona para participantes e fichas extras. Fichas anteriores preservam seus atributos, fotos e evolução; dados de rolagens antigos são ignorados.

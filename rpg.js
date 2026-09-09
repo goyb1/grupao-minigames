@@ -31,7 +31,7 @@ function validateSheet(input,member,master){
  const names=attributes(position==='Goleiro'),base={},growth={};
  for(const a of names){const n=input.base?.[a],g=input.growth?.[a]??0;if(!Number.isInteger(n)||n<1||n>12||!Number.isInteger(g)||g<0||g>30)fail('Atributos inválidos.');base[a]=n;growth[a]=master?g:(member.sheet?.growth?.[a]||0);}
  const age=Number(input.age),height=Number(input.height),level=master?Number(input.level||1):(member.sheet?.level||1);
- if(!Number.isInteger(age)||age<18||age>99||!Number.isFinite(height)||height<100||height>250||!Number.isInteger(level)||level<1||level>100)fail('Confira idade, altura e nível.');
+ if(!Number.isInteger(age)||age<15||age>20||!Number.isFinite(height)||height<100||height>250||!Number.isInteger(level)||level<1||level>100)fail('Confira idade, altura e nível.');
  if(Object.values(growth).reduce((a,b)=>a+b,0)>2*(level-1))fail('Cada nível após o primeiro permite dois pontos de evolução.');
  if(!egos.includes(input.ego))fail('Escolha um Ego.');
  const bonuses={};styles[position][style].forEach((a,i)=>bonuses[a]=(bonuses[a]||0)+[2,2,1,-1,-1][i]);
