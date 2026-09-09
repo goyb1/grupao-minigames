@@ -1,5 +1,28 @@
 # Grupão Minigames
 
+## Versão 4.7.0 — Fichas e saves de RPG
+
+Abra **BlueLocker → Abrir saves** no menu de minigames.
+
+1. O mestre cria um save e compartilha seu código de 16 caracteres.
+2. Os participantes entram com suas próprias contas e criam uma ficha por campanha.
+3. A criação gera dois conjuntos de 11d12 no servidor, uma única vez. Escolha um conjunto e distribua os números respeitando suas repetições.
+4. Escolha posição, estilo e Ego. Os 11 atributos mudam conforme a posição; os bônus dos 23 estilos e os modificadores são calculados automaticamente.
+5. Envie um PNG de até 1 MB, com no máximo 2048 × 2048 pixels. Transparência preservada.
+6. Registre talentos, habilidade do estilo, Arma Secreta e história nos campos de texto. São registros para o mestre, ainda sem execução automática dos efeitos.
+7. O mestre revisa e aprova a ficha. A aprovação bloqueia edições pelo participante. Para liberar novamente, o mestre desmarca a aprovação e salva.
+8. Apenas o mestre altera nível e pontos de evolução (até dois pontos por nível após o primeiro). A distribuição deve ser revisada pelo mestre conforme as regras da mesa.
+9. O diário do save é compartilhado; apenas o mestre pode editá-lo. Use Atualizar para carregar mudanças dos outros participantes.
+
+**Persistência:** com DATABASE_URL configurada, saves, participantes, fichas, conjuntos de dados e fotos ficam na nova tabela rpg_campaigns do PostgreSQL. A tabela é criada automaticamente, sem modificar contas ou recordes existentes. Sem PostgreSQL, os dados ficam em data/rpg-campaigns.json (ou DATA_DIR); disco efêmero não garante persistência em produção.
+
+O mestre é quem cria cada campanha, independentemente de ser administrador do site. Cada save aceita até 30 participantes, incluindo o mestre, e o usuário pode participar de vários saves. O mestre também pode criar sua própria ficha, opcionalmente. Fichas são visíveis apenas a participantes do mesmo save.
+
+Nesta etapa não há simulação de partidas: o módulo é destinado às fichas e à organização da campanha. O nível do RPG é independente do nível do perfil nos minigames. Valores finais de atributos são limitados a 1–30 para manter a tabela de modificadores definida; a aplicação desse limite é uma convenção desta ficha digital.
+
+Validação local: `npm test`. Os testes do RPG cobrem permissões, aprovação, rolagens persistidas, fotos e retomada com armazenamento local. A conexão PostgreSQL real deve ser verificada no ambiente de hospedagem.
+
+
 ## Versão 4.6.0 — Quem Sou Eu?
 
 - Sexto minijogo, para 2 a 10 jogadores, com 200 personagens famosos da ficção.

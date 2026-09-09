@@ -27,6 +27,7 @@ const CATEGORIES = { football: QUESTIONS, clash: CLASH_QUESTIONS, games: GAME_QU
 let users = {};
 const whoGame = createWhoGame({ rooms, broadcast, finish, shuffle, stopTimer });
 
+const rpg = require('./rpg').createRpg({app,express,db,auth,normalize,dataDir:path.dirname(DATA_FILE)});
 app.use(express.json({ limit: '30kb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -122,4 +123,4 @@ io.on('connection',socket=>{
   socket.on('disconnect',()=>{const r=rooms.get(socket.data.roomCode),p=r?.players.get(socket.id);if(!r||!p)return;p.connected=false;p.ready=false;r.messages.push({id:crypto.randomUUID(),nick:'Sistema',text:`${p.nick} desconectou.`,time:Date.now()});if(r.hostId===socket.id){const next=active(r)[0];if(next)r.hostId=next.id;}whoGame.connectionChanged(r);broadcast(r);setTimeout(()=>{if(!rooms.has(r.code)||p.connected)return;if(r.category==='who'&&r.state==='who'&&active(r).length)return;r.players.delete(p.id);if(!r.players.size){stopTimer(r);rooms.delete(r.code);}else broadcast(r);},120000);});
 });
 
-initStore().then(()=>server.listen(PORT,()=>console.log(`Grupão Minigames em http://localhost:${PORT} (${db?'PostgreSQL':'arquivo local'})`))).catch(error=>{console.error('Não foi possível conectar ao banco de dados:',error);process.exit(1);});
+initStore().then(()=>rpg.init()).then(()=>server.listen(PORT,()=>console.log(`Grupão Minigames em http://localhost:${PORT} (${db?'PostgreSQL':'arquivo local'})`))).catch(error=>{console.error('Não foi possível conectar ao banco de dados:',error);process.exit(1);});
