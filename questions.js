@@ -316,14 +316,45 @@ const profiles = PLAYER_ROWS.trim().split("\n").map((row, index) => {
 const QUESTIONS = profiles.flatMap((p) => {
   const initials = p.answer.split(/\s+/).map((part) => part[0]).join(".").toUpperCase();
   const aliases = [normalize(p.answer), normalize(p.answer.split(" ").pop())];
+  const firstClub = p.clubs.split(/,| e /)[0].trim();
+  const templates = [
+    [
+      `A carreira deste nome ficou marcada nos ${p.era}.`,
+      `Defendeu as cores de ${p.country} no futebol internacional.`,
+      `Sua função mais conhecida em campo era ${p.position}.`,
+      `No futebol de clubes, vestiu camisas como ${p.clubs}.`,
+      `Uma pista decisiva: passou por ${firstClub} e suas iniciais são ${initials}.`
+    ],
+    [
+      `Entre os clubes ligados à sua trajetória estão ${p.clubs}.`,
+      `É um nome associado à geração dos ${p.era}.`,
+      `Quando representava sua seleção, jogava por ${p.country}.`,
+      `Dentro de campo, destacou-se principalmente como ${p.position}.`,
+      `Para fechar: sua trajetória inclui ${firstClub}, e o nome tem as iniciais ${initials}.`
+    ],
+    [
+      `Sua história no futebol passa por ${firstClub}.`,
+      `Viveu seus anos de maior destaque nos ${p.era}.`,
+      `Atuava sobretudo na posição de ${p.position}.`,
+      `No cenário de seleções, representou ${p.country}.`,
+      `Também jogou por ${p.clubs}; as iniciais do nome são ${initials}.`
+    ],
+    [
+      `Este jogador pertence à geração que brilhou nos ${p.era}.`,
+      `A posição pela qual ficou conhecido é ${p.position}.`,
+      `Sua carreira internacional está ligada a ${p.country}.`,
+      `O currículo de clubes inclui ${p.clubs}.`,
+      `Último empurrão: um dos clubes foi ${firstClub}, e suas iniciais são ${initials}.`
+    ]
+  ];
   return [
     {
       id: `${p.id}-a`, answer: p.answer, aliases,
-      hints: [`Representou ${p.country}.`, `Atuou principalmente como ${p.position}.`, `Teve destaque nos ${p.era}.`, `Passou por ${p.clubs}.`, `Suas iniciais são ${initials}.`]
+      hints: templates[(p.id - 1) % templates.length]
     },
     {
       id: `${p.id}-b`, answer: p.answer, aliases,
-      hints: [`Teve passagem por ${p.clubs}.`, `É lembrado como ${p.position}.`, `Sua seleção é ${p.country}.`, `Seu auge ou destaque ocorreu nos ${p.era}.`, `O nome começa com “${p.answer[0]}” e as iniciais são ${initials}.`]
+      hints: templates[(p.id + 1) % templates.length]
     }
   ];
 }).slice(0, 500);

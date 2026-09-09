@@ -1,5 +1,13 @@
 # Grupão Minigames
 
+## Versão 4.5.0 — Última chance com alternativas no Futebol
+
+- A última dica do Quiz de Futebol agora vira uma questão com quatro alternativas A, B, C e D.
+- Cada jogador escolhe somente uma alternativa; a rodada é avaliada quando todos confirmam.
+- As opções são embaralhadas e sempre contêm uma resposta correta e três jogadores diferentes.
+- As dicas de futebol ganharam textos mais variados, combinando época, seleção, posição, clubes e iniciais.
+- O campo de texto e o autocomplete continuam funcionando normalmente nas dicas anteriores.
+
 ## Versão 4.4.1 — Correção de navegação e cronômetros
 
 - Enviar palpites no Quiz Gamer não faz mais a página voltar para o topo.
