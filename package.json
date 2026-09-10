@@ -1,6 +1,6 @@
 {
   "name": "grupao-minigames",
-  "version": "4.7.6",
+  "version": "4.8.0",
   "private": true,
   "description": "Plataforma multiplayer do Grupão com contas, recordes e minigames.",
   "main": "server.js",

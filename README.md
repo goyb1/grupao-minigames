@@ -1,5 +1,38 @@
 # Grupão Minigames
 
+## Versão 4.8.0 — Mesa de partidas BlueLocker
+
+Abra uma campanha em **BlueLocker → Abrir saves → Abrir partida**. O mestre escala 14 fichas aprovadas, sete em cada time, com exatamente um goleiro por equipe. Fichas extras são NPCs controlados pelo mestre. Quem controla o mestre pode também conduzir um personagem de jogador se ele estiver ausente.
+
+### Preparação e fluxo
+
+- Escolha nomes, cores e formações 2-3-1, 3-2-1 ou 2-2-2. As fichas aprovadas fornecem os modificadores, incluindo o estilo. Estes valores são copiados para a partida; editar a ficha depois não altera uma partida já iniciada.
+- Posicione as peças arrastando-as ou selecionando a peça, o destino e Posicionar peça. Na partida em andamento, reposicionamento manual exige pausa e justificativa.
+- Inicie pelo painel do mestre. O relógio usa dois tempos de 15 minutos e corre durante as decisões. Nas rolagens fica parado.
+- Selecione personagem, ação, alvo e destino quando necessário, e declare. O defensor pode reagir. Após cinco segundos, o autor pode avançar; o mestre pode avançar a qualquer momento. Sem reação escolhida, desarme/drible usam o adversário indicado e chute usa a defesa padrão do goleiro. Passe e movimento seguem sem oposição.
+- Cada controlador rola seus dados. O mestre pode lançar pelos NPCs ou registrar resultados de d20 externos. O histórico identifica rolagens manuais.
+- Gols atualizam o placar, autor e assistência quando aplicável, reposicionam os times e pausam para o mestre retomar a saída. Defesa por margem positiva de até três gera rebote.
+- No intervalo, o mestre prepara o segundo tempo e os times trocam de lado. Ao terminar, aparecem estatísticas de gols, assistências e defesas. Outra partida pode ser preparada, guardando até vinte resumos anteriores no save.
+
+### Ações e arbitragem
+
+Ações: andar, correr, passe para companheiro ou espaço, passe alto, domínio, drible, desarme/carrinho, buscar bola e finalização normal/de primeira/cabeceio/acrobática. Reações: acompanhar, bloquear, interceptar, disputar, proteger a posse e sair do gol. O sistema confere controle do personagem, distância e estado do lance no servidor.
+
+Convenções desta adaptação digital: campo 105 × 68 m; caminhada até 5 m; desarme a até 3 m; interceptação a até 5 m da trajetória; acompanhamento com distância inicial de até 8 m; testes não disputados têm dificuldade 10. Uma reação principal por lance, com defesa do goleiro em seguida quando um bloqueio é superado. Passe recebido em outro terço ou sob marcação pede domínio ou ação de primeira. A força da corrida usa o modificador de Ritmo em dobro, inclusive na perseguição. Movimento é realizado por ações, sem física contínua. A janela de reação de cinco segundos não é uma regra do manual.
+
+No painel do mestre é possível pausar, retomar, encerrar, desfazer o último lance, alterar posse, reposicionar, corrigir relógio e placar, registrar falta/reposição, cartões e anotações. Dois amarelos expulsam; expulsos não podem agir. Correções ficam registradas. Desfazer restaura o estado anterior ao lance e pausa a mesa.
+
+Antes das rolagens, o mestre pode aplicar bônus/penalidades e vantagem/desvantagem, com justificativa. Talentos, pressão e habilidades escritas nas fichas continuam sendo interpretados pelo mestre por esse painel, sem automatização completa. A automação específica de faltas, escanteios, pênaltis, Arma Secreta, Fluxo, Ego, Metavisão e Olho do Predador permanece para uma etapa posterior. Os bônus de estilo nos modificadores são automáticos; a Muralha também remove o +3 do cara a cara.
+
+### Salvamento e sincronização
+
+O estado da partida é salvo no mesmo registro da campanha, após cada comando válido, utilizando PostgreSQL quando DATABASE_URL está configurada. Não cria nem apaga usuários ou fichas. O modo local utiliza o arquivo de campanhas existente. A tela consulta o estado a cada 1,2 segundo; respostas de consulta antigas são descartadas. Revisão da partida e identificador de lance impedem comandos atrasados ou duplicados. Transações com bloqueio da campanha no PostgreSQL e uma fila no modo local protegem alterações simultâneas.
+
+Ao reiniciar o serviço, partidas em andamento voltam pausadas, no último estado persistido. O tempo de inatividade do servidor não é somado. Durante a falta de conexão, a tela avisa e tenta sincronizar novamente; o mestre deve pausar antes de uma interrupção planejada.
+
+Validação: testes de motor de jogo e API com dois clientes cobrem posse, gol/rebote, desfazer, controle de personagens, concorrência, dados manuais e recuperação após reinício. A validação executada usa armazenamento local; PostgreSQL real e aparência no navegador não foram testados neste ambiente.
+
+
 ## Versão 4.7.6 — Cartões de personagens sem foto
 
 Personagens sem PNG recebem um cartão com iniciais, nome, posição e cor personalizável, na ficha e na lista do save. Funciona também para NPCs do mestre. Escolha a cor na ficha e clique em Salvar ficha; a prévia acompanha alterações no nome e posição. Um PNG substitui o cartão; remover a foto restaura o cartão e sua cor. Fichas anteriores recebem a cor azul padrão automaticamente.
