@@ -1,5 +1,16 @@
 # Grupão Minigames
 
+## Versão 4.8.1 — Gerador de NPCs
+
+No save, o mestre abre **Personagens controlados pelo mestre → Gerador de NPCs**. Pode gerar sete fichas por formação, completar uma equipe selecionando os personagens existentes, criar de 1 a 14 por posição ou duplicar uma ficha. A duplicação copia os dados e usa cartão sem foto; altere o nome na prévia.
+
+Escolha nível e perfil. A distribuição é uma sugestão para NPCs: iniciais até 12, dois pontos de evolução por nível após o primeiro, atributo final até 30, estilo aplicado ao modificador. Cada prévia permite editar nome, idade (15–20), nacionalidade, altura, estilo, Ego, nível, atributos, talentos, arma, notas e cor. É possível refazer ou remover só um NPC. Marque se deseja salvar aprovados.
+
+O lote só é criado ao clicar em Salvar NPCs; todos os itens são validados antes de persistir. Limite de 30 extras por save. As fichas existentes não são modificadas. Após salvar, selecione os novos NPCs na escalação da partida.
+
+Validação: 36 testes de lógica e API passaram, incluindo geração por posição/nível, preenchimento de vagas, autorização do mestre, atomicidade, limite e repetição de requisições. Interface não validada em navegador nesta atualização.
+
+
 ## Versão 4.8.0 — Mesa de partidas BlueLocker
 
 Abra uma campanha em **BlueLocker → Abrir saves → Abrir partida**. O mestre escala 14 fichas aprovadas, sete em cada time, com exatamente um goleiro por equipe. Fichas extras são NPCs controlados pelo mestre. Quem controla o mestre pode também conduzir um personagem de jogador se ele estiver ausente.
