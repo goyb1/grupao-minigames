@@ -2,7 +2,7 @@
 const {test}=require('node:test');const assert=require('node:assert/strict');
 const {command,publicMatch,wins,HALF}=require('../rpg_match');
 const attrs=['Carisma','Físico','Frieza','Ritmo','Passe','Finalização','Bola Parada','Defesa','Domínio','Drible','Interceptação','Reflexo','Reação','Saída','Posicionamento'];
-function fixture(){const c={owner:'mestre',members:{mestre:{},amigo:{}},extras:{}};const teams=[0,1].map(t=>{const ids=Array.from({length:7},(_,i)=>`npc:${t}_${i}`);ids.forEach((id,i)=>c.extras[id]={sheet:{name:id,approved:true,position:i?'Atacante':'Goleiro',style:i?'Matador':'Líbero',stats:Object.fromEntries(attrs.map(a=>[a,{modifier:2}]))}});return {name:'Time '+t,color:t?'#ffad52':'#46e4ff',formation:'2-3-1',ids};});command(c,'mestre',{op:'create',teams},s=>s);return c;}
+function fixture(){const c={owner:'mestre',members:{mestre:{},amigo:{}},extras:{}};const teams=[0,1].map(t=>{const ids=Array.from({length:7},(_,i)=>`npc:${t}_${i}`);ids.forEach((id,i)=>c.extras[id]={sheet:{name:id,approved:true,position:i?'Atacante':'Goleiro',style:i?'Matador':'Líbero',stats:Object.fromEntries(attrs.map(a=>[a,{modifier:2}]))}});return {name:'Time '+t,color:t?'#ffad52':'#46e4ff',formation:'2-3-1',ids};});command(c,'mestre',{op:'create',teams,freeMode:false},s=>s);return c;}
 function cmd(c,op,body={},k='mestre'){command(c,k,{op,matchId:c.match.id,rev:c.match.rev,actionId:c.match.pending?.id,...body},s=>s);}
 function resume(c){cmd(c,'resume');}
 function pos(c,id,x,y){cmd(c,'position',{actor:id,to:{x,y},reason:'Cenário de teste'});}
