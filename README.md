@@ -1,5 +1,22 @@
 # Grupão Minigames
 
+## Versão 4.8.2 — Mesa livre e dados independentes
+
+Abra **BlueLocker → save → Abrir partida**. Novas partidas usam a mesa livre. Em uma partida de versão anterior, o mestre clica em **Ativar mesa livre**: a escalação, posições, posse, placar, fichas e histórico são preservados; o lance automático pendente é cancelado e a partida fica pausada. Essa ativação não tem botão de retorno ao modo antigo. O motor anterior continua disponível para partidas antigas que ainda não foram convertidas.
+
+- Cada jogador pode arrastar seu próprio token com mouse ou toque, sem limite de distância ou necessidade de rolagem. O mestre move todos os personagens, inclusive NPCs. Funciona na preparação, com relógio em andamento, nas pausas e no intervalo; partidas encerradas não permitem movimento.
+- Também é possível selecionar a peça, tocar no destino ou preencher X/Y e clicar em **Mover peça para o destino**.
+- Apenas o mestre move a bola: arraste-a, escolha **Bola** no seletor ou selecione um personagem e clique em **Dar bola ao personagem selecionado**. Arrastar a bola remove sua posse; mover quem está com ela leva a bola junto. Não há troca automática de posse por proximidade.
+- O painel **Dados independentes** permite de 1 a 10 dados d4, d6, d8, d10, d12, d20 ou d100, usando soma, maior ou menor resultado. Escolha opcionalmente um personagem e atributo; o modificador copiado para a partida já inclui o estilo. Um ajuste adicional de −100 a +100 e uma descrição são opcionais. O mestre pode registrar dados externos no mesmo formulário.
+- As rolagens são feitas no servidor e ficam no histórico compartilhado. Elas não resolvem jogadas, alteram posições, posse, placar ou cronômetro. Os jogadores e o mestre interpretam os resultados. Uma nova tentativa de envio da mesma rolagem não a duplica (mantidos os últimos 200 identificadores).
+- O relógio e os controles de arbitragem existentes continuam disponíveis. Para ajustar placar, cartões e tempo, o mestre pausa a partida. Gols e defesas não são calculados a partir dos dados na mesa livre. A preparação do segundo tempo ainda reposiciona as equipes e troca os lados.
+- Posições e rolagens são persistidas no mesmo save, em PostgreSQL quando configurado ou no arquivo local existente. Revisões por peça permitem movimentos simultâneos de personagens diferentes e rejeitam movimentos desatualizados da mesma peça. Desfazer movimento mantém as rolagens no histórico.
+
+Esta mesa livre é uma adaptação digital, não uma nova regra atribuída ao manual. Não altera as regras de criação e evolução das fichas, contas, minigames ou gerador de NPCs.
+
+Validação desta versão: 45 testes automatizados passaram (36 anteriores e 9 novos), incluindo lógica, API, persistência local e retomada após reinício. Todos os 16 arquivos JavaScript do servidor e da interface passaram na verificação de sintaxe. Não foi realizada validação visual em navegador nem conexão com PostgreSQL real/Render.
+
+
 ## Versão 4.8.1 — Gerador de NPCs
 
 No save, o mestre abre **Personagens controlados pelo mestre → Gerador de NPCs**. Pode gerar sete fichas por formação, completar uma equipe selecionando os personagens existentes, criar de 1 a 14 por posição ou duplicar uma ficha. A duplicação copia os dados e usa cartão sem foto; altere o nome na prévia.

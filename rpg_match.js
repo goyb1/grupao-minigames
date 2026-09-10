@@ -17,14 +17,14 @@ function log(m,message,extra={}){m.log.push({id:crypto.randomUUID(),at:Date.now(
 function get(m,id){if(!Object.hasOwn(m.players,id))fail('Jogador não escalado.');return m.players[id];}
 function control(c,m,k,id){const p=get(m,id);if(k!==c.owner&&p.controller!==k)fail('Você não controla este personagem.',403);if(p.red)fail('Este jogador foi expulso.');return p;}
 function master(c,k){if(c.owner!==k)fail('Apenas o mestre pode fazer isso.',403);}
-function snapshot(m){const {undo,log,...state}=m;return structuredClone(state);}
+function snapshot(m){const {undo,log,diceRequests,...state}=m;return structuredClone(state);}
 function checkpoint(m){m.undo=snapshot(m);}
 function elapsed(m,now=Date.now()){return Math.min(HALF,m.elapsed+(m.running?Math.max(0,now-m.anchor):0));}
 function clock(m,now=Date.now()){m.elapsed=elapsed(m,now);m.anchor=now;if(m.elapsed>=HALF&&m.status==='playing'&&!m.pending){m.running=false;m.status=m.half===1?'interval':'finished';log(m,m.half===1?'Fim do primeiro tempo. Intervalo.':'Fim da partida.');}}
 function pause(m){clock(m);m.running=false;}
-function kickoff(m,team){for(const p of Object.values(m.players)){p.x=p.home.x;p.y=p.home.y;}const p=Object.values(m.players).find(p=>p.team===team&&!p.red&&p.position!=='Goleiro');m.ball={holder:p?.id||null,x:52.5,y:34};if(p){p.x=team===0?51:54;p.y=34;m.ball.x=p.x;m.ball.y=p.y;}m.reception=null;m.rebound=null;}
-function hold(m,id){const p=get(m,id);m.ball={holder:id,x:p.x,y:p.y};m.reception=null;m.rebound=null;}
-function ground(m,p){m.ball={holder:null,...point(p)};m.reception=null;m.rebound=null;}
+function kickoff(m,team){for(const p of Object.values(m.players)){p.x=p.home.x;p.y=p.home.y;p.moveRev=(p.moveRev||0)+1;}const p=Object.values(m.players).find(p=>p.team===team&&!p.red&&p.position!=='Goleiro');m.ball={holder:p?.id||null,x:52.5,y:34,moveRev:(m.ball?.moveRev||0)+1};if(p){p.x=team===0?51:54;p.y=34;m.ball.x=p.x;m.ball.y=p.y;}m.reception=null;m.rebound=null;}
+function hold(m,id){const p=get(m,id);m.ball={holder:id,x:p.x,y:p.y,moveRev:(m.ball?.moveRev||0)+1};m.reception=null;m.rebound=null;}
+function ground(m,p){m.ball={holder:null,...point(p),moveRev:(m.ball?.moveRev||0)+1};m.reception=null;m.rebound=null;}
 function step(p,to,d){const length=dist(p,to),f=length?Math.min(1,Math.max(0,d)/length):0;p.x+=f*(to.x-p.x);p.y+=f*(to.y-p.y);}
 function goalPoint(m,p){const right=(p.team===0)===(m.half===1);return {x:right?105:0,y:34};}
 function inside(m,p){const g=goalPoint(m,p);return Math.abs(g.x-p.x)<=16.5&&p.y>=14&&p.y<=54;}
@@ -38,7 +38,7 @@ function createMatch(c,input,currentSheet){
  sheets.forEach(({id,s},i)=>{const [fx,fy]=FORMATIONS[t.formation][i],x=team===0?fx:105-fx,y=fy;players[id]={id,name:s.name,position:s.position,style:s.style,controller:id.startsWith('npc:')?c.owner:id,team,x,y,home:{x,y},mods:Object.fromEntries(Object.entries(s.stats).map(([a,v])=>[a,v.modifier])),goals:0,assists:0,saves:0,yellow:0,red:false};});
  if(!/^#[0-9a-f]{6}$/i.test(t.color))fail('Escolha uma cor válida.');return {name:text(t.name,40),color:t.color,formation:t.formation};});
  if(c.match){c.matchHistory=c.matchHistory||[];c.matchHistory.push({teams:c.match.teams,score:c.match.score,date:new Date().toISOString(),players:Object.values(c.match.players).map(p=>({name:p.name,goals:p.goals,assists:p.assists,saves:p.saves}))});c.matchHistory=c.matchHistory.slice(-20);}
- const m={id:crypto.randomUUID(),rev:1,status:'setup',half:1,elapsed:0,anchor:Date.now(),running:false,teams,players,score:[0,0],ball:null,pending:null,reception:null,rebound:null,lastPass:null,log:[],undo:null};kickoff(m,0);log(m,'Escalação pronta. O mestre pode posicionar as peças e iniciar.');c.match=m;
+ const m={id:crypto.randomUUID(),rev:1,freeMode:input.freeMode!==false,status:'setup',half:1,elapsed:0,anchor:Date.now(),running:false,teams,players,score:[0,0],ball:null,pending:null,reception:null,rebound:null,lastPass:null,log:[],undo:null};kickoff(m,0);log(m,'Escalação pronta. O mestre pode posicionar as peças e iniciar.');c.match=m;
 }
 function makeTest(p,attr,adv=0,bonus=0,reasons=[]){if(!Object.hasOwn(p.mods,attr))fail(`${p.name} não possui ${attr}.`);return {player:p.id,attribute:attr,modifier:p.mods[attr],bonus,advantage:adv,reasons,roll:null};}
 function inRange(m,p,r=3){return Object.values(m.players).filter(q=>!q.red&&q.team!==p.team&&dist(p,q)<=r);}
@@ -119,13 +119,49 @@ function react(c,m,k,input){const a=m.pending;if(m.status!=='playing'||!a||a.id!
  else if(a.kind==='collect'){if(dist(r,m.ball)>40)fail('Jogador longe demais para disputar.');}else fail('Reação inválida.');
  a.reactor=r.id;a.response=response;log(m,`${r.name} reagiu ao lance.`);beginTests(m,a);
 }
+function tabletop(c,m,k,input){
+ if(input.op==='dice'){
+  const id=input.requestId;if(typeof id!=='string'||! /^[a-zA-Z0-9-]{16,80}$/.test(id))fail('Identificador de rolagem inválido.');
+  if((m.diceRequests||[]).includes(id))return;
+  const count=input.count,sides=input.sides,bonus=input.bonus,mode=input.mode;
+  if(!Number.isInteger(count)||count<1||count>10||![4,6,8,10,12,20,100].includes(sides)||!Number.isInteger(bonus)||Math.abs(bonus)>100||!['sum','highest','lowest'].includes(mode))fail('Confira quantidade, dado e modificador.');
+  let modifier=0,who=c.members[k].nick||k,attribute='';
+  if(input.actor){const p=get(m,input.actor);if(k!==c.owner&&p.controller!==k)fail('Você não controla este personagem.',403);who=p.name;if(input.attribute){if(!Object.hasOwn(p.mods,input.attribute))fail('Atributo inválido.');attribute=input.attribute;modifier=p.mods[attribute];}}
+  else if(input.attribute)fail('Escolha um personagem para usar um atributo.');
+  let dice;if(input.dice!==undefined){master(c,k);if(!Array.isArray(input.dice)||input.dice.length!==count||input.dice.some(n=>!Number.isInteger(n)||n<1||n>sides))fail(`Informe ${count} resultado(s) de 1 a ${sides}.`);dice=input.dice;}else dice=Array.from({length:count},()=>crypto.randomInt(1,sides+1));
+  const subtotal=mode==='highest'?Math.max(...dice):mode==='lowest'?Math.min(...dice):dice.reduce((a,b)=>a+b,0),total=subtotal+modifier+bonus;
+  const reason=input.reason?text(input.reason):'';
+  log(m,`${who} rolou ${count}d${sides}${input.dice?' (manual)':''}: [${dice.join(', ')}] • ${mode==='highest'?'maior':mode==='lowest'?'menor':'soma'} ${subtotal}${attribute?' • '+attribute+' '+modifier:''} • ajuste ${bonus} = ${total}${reason?' • '+reason:''}`,{roll:true,independent:true,requestId:id,dice,total});
+  m.diceRequests=[...(m.diceRequests||[]),id].slice(-200);m.rev++;return;
+ }
+ if(!m.freeMode)fail('O mestre precisa ativar a mesa livre.');
+ if(m.status==='finished')fail('Esta partida foi encerrada.');
+ if(input.op==='freeMove'){
+  const p=get(m,input.actor);if(k!==c.owner&&p.controller!==k)fail('Você não controla este personagem.',403);
+  if(input.positionRev!==(p.moveRev||0))fail('Esta peça mudou. Confira a posição e tente novamente.',409);
+  const to=point(input.to);checkpoint(m);Object.assign(p,to);p.moveRev=(p.moveRev||0)+1;
+  if(m.ball.holder===p.id){m.ball.x=p.x;m.ball.y=p.y;m.ball.moveRev=(m.ball.moveRev||0)+1;}
+  log(m,`${p.name} foi movido para (${to.x}, ${to.y}).`);
+ }else{
+  master(c,k);if(input.positionRev!==(m.ball.moveRev||0))fail('A bola mudou. Confira a posição e tente novamente.',409);
+  const to=input.actor?null:point(input.to),p=input.actor?get(m,input.actor):null,rev=(m.ball.moveRev||0)+1;checkpoint(m);
+  m.ball=p?{holder:p.id,x:p.x,y:p.y,moveRev:rev}:{holder:null,...to,moveRev:rev};m.reception=null;m.rebound=null;m.lastPass=null;
+  log(m,p?`Mestre entregou a bola a ${p.name}.`:`Mestre moveu a bola para (${to.x}, ${to.y}).`);
+ }
+ m.lastTrajectory=null;m.rev++;
+}
 function command(c,k,input,currentSheet){
  if(!Object.hasOwn(c.members,k))fail('Você não participa deste save.',403);
  if(input.op==='create'){master(c,k);createMatch(c,input,currentSheet);return;}
  const m=c.match;if(!m||m.id!==input.matchId)fail('A partida mudou. Atualize a tela.',409);
+ if(['dice','freeMove','freeBall'].includes(input.op))return tabletop(c,m,k,input);
+ if(m.freeMode&&['declare','react','advance','roll','adjust','position'].includes(input.op))fail('Na mesa livre, mova as peças e use os dados independentes.');
  clock(m);
  if(!['roll','react','advance'].includes(input.op)&&input.rev!==m.rev)fail('Outra ação alterou o campo. Confira a atualização e tente novamente.',409);
- if(input.op==='declare')declare(c,m,k,input);
+ if(input.op==='enableFree'){
+  master(c,k);pause(m);m.status=m.status==='finished'?'finished':'paused';m.freeMode=true;m.pending=null;m.reception=null;m.rebound=null;m.lastPass=null;m.undo=null;m.lastTrajectory=null;log(m,'Mestre ativou a mesa livre. O lance pendente foi cancelado; posições e placar foram preservados.');
+ }
+ else if(input.op==='declare')declare(c,m,k,input);
  else if(input.op==='react')react(c,m,k,input);
  else if(input.op==='advance'){
  const a=m.pending;if(m.status!=='playing'||!a||a.id!==input.actionId||a.phase!=='reaction')fail('O lance já mudou.',409);
@@ -142,7 +178,7 @@ function command(c,k,input,currentSheet){
  else if(input.op==='resume'){if(!['setup','paused'].includes(m.status))fail('A partida não pode ser retomada agora.');m.status='playing';m.restarted=false;m.anchor=Date.now();m.running=m.pending?.phase!=='roll';log(m,'Mestre iniciou ou retomou a partida.');}
  else if(input.op==='half'){if(m.status!=='interval')fail('O primeiro tempo ainda não acabou.');m.half=2;m.elapsed=0;m.running=false;m.status='paused';for(const p of Object.values(m.players)){p.home.x=105-p.home.x;}kickoff(m,1);log(m,'Segundo tempo preparado. Os times trocaram de lado.');}
  else if(input.op==='finish'){pause(m);m.status='finished';m.pending=null;log(m,'Mestre encerrou a partida.');}
- else if(input.op==='undo'){if(!m.undo)fail('Não há lance para desfazer.');const before=m.undo,logs=m.log,rev=m.rev;Object.assign(m,before);m.log=logs;m.rev=rev;m.undo=null;m.status='paused';m.running=false;m.pending=null;log(m,'Mestre desfez o último lance. Partida pausada.');}
+ else if(input.op==='undo'){if(!m.undo)fail('Não há lance para desfazer.');const before=m.undo,logs=m.log,rev=m.rev,positionRevs=Object.fromEntries(Object.entries(m.players).map(([id,p])=>[id,p.moveRev||0])),ballRev=m.ball.moveRev||0;Object.assign(m,before);for(const [id,p] of Object.entries(m.players))p.moveRev=Math.max(p.moveRev||0,positionRevs[id]||0)+1;m.ball.moveRev=Math.max(m.ball.moveRev||0,ballRev)+1;m.log=logs;m.rev=rev;m.undo=null;m.status='paused';m.running=false;m.pending=null;log(m,'Mestre desfez o último lance. Partida pausada.');}
  else if(input.op==='adjust'){
  const a=m.pending;if(!a||a.phase!=='roll'||a.tests.some(t=>t.roll))fail('Ajustes precisam ser feitos antes das rolagens.');const t=a.tests.find(t=>t.player===input.actor);if(!t)fail('Teste não encontrado.');const bonus=number(input.bonus,-30,30),adv=number(input.advantage,-5,5);if(!Number.isInteger(bonus)||!Number.isInteger(adv))fail('Use números inteiros.');const reason=text(input.reason);t.bonus+=bonus;t.advantage=Math.max(-5,Math.min(5,t.advantage+adv));t.reasons.push(reason);log(m,`Ajuste do mestre para ${get(m,t.player).name}: ${bonus>=0?'+':''}${bonus}, saldo de vantagem ${adv}. ${reason}`);
  }
