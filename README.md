@@ -1,5 +1,21 @@
 # Grupão Minigames
 
+## Versão 4.8.4 — Régua do campo
+
+Abra **BlueLocker → save → Abrir partida** e use **📏 Régua**, acima do campo.
+
+- Ative a ferramenta e arraste do início ao fim com mouse ou dedo. A seta rosa mostra a distância em metros enquanto você mede; o resultado permanece ao soltar.
+- Também é possível tocar/clicar em dois pontos: o primeiro fixa a origem e o segundo fixa o destino. Uma nova medição substitui a anterior.
+- **Limpar medida** apaga a linha. **Régua ativa — sair** ou **Esc** encerra a medição e libera os controles normais do campo.
+- No teclado: após ativar a régua, use setas para posicionar o cursor (1 m por passo, ou 5 m com Shift) e Enter para marcar origem e destino.
+- O cálculo usa distância reta na escala já existente de **105 × 68 metros**, com uma casa decimal. Redimensionar a tela não muda a escala. Não há conversão em quadrados nem nova regra do manual.
+- Disponível para participantes e mestre, inclusive em partidas antigas. A régua é uma ferramenta local de consulta: sua medida não aparece nas outras telas, não é salva no histórico e não altera tokens, posse, dados, placar ou relógio. Ao desativar ou sair da partida, a medida é removida.
+
+Mantidos times salvos, mesa livre, dados independentes, fichas, NPCs, contas e persistência. Nenhuma alteração nos módulos de servidor ou banco nesta versão.
+
+Validação: **55 testes automatizados passaram**, incluindo seis novos testes de distância, escala da tela, limites, arraste, dois pontos e limpeza. Verificada a sintaxe do JavaScript. Em uma página local de teste com a régua real, foram conferidos no navegador o desenho e a medida por arraste, dois cliques, limpeza/saída e o bloqueio dos cliques no token durante a medição. O site completo, toque em aparelho físico, PostgreSQL real e Render não foram testados nesta atualização.
+
+
 ## Versão 4.8.3 — Times salvos
 
 O mestre pode guardar até 30 times completos por save, com nome, cor, formação e as sete fichas (jogadores e/ou NPCs). As fichas não são copiadas: o time guarda referências aos personagens existentes.
