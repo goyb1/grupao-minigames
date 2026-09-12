@@ -18,7 +18,7 @@
  window.openRpgMatch=(c,returnTo)=>{session++;clearInterval(pollTimer);clearInterval(clockTimer);campaign=c;match=c.match;preparing=false;back=returnTo;selected='';destination=null;pendingKey='';paintedId='';show('match');root.innerHTML='<p>Carregando campo…</p>';if(match){paintedId=match.id;receivedAt=performance.now();layout();draw();}else setup();pollTimer=setInterval(poll,1200);clockTimer=setInterval(drawClock,200);poll();};
  function setup(){
  preparing=!!match&&isMaster();
- root.innerHTML=`<header class="topbar"><button id="matchBack" class="link">← SAVE</button><b>Preparar partida</b><small id="matchConnection">${esc(campaign.name)}</small></header><p id="matchError" class="error" role="alert"></p><div class="card match-setup"><span class="badge">7 CONTRA 7</span><h2>Escale os dois times</h2><p>Cada time precisa de seis jogadores de linha e um goleiro. Só aparecem fichas aprovadas pelo mestre.</p>${isMaster()?`<form id="matchSetupForm"><div class="match-team-setup">${[0,1].map(team=>`<fieldset><legend>Time ${team+1}</legend>${formField('name'+team,'Nome do time','text',team?'Visitantes':'Grupão','required maxlength="40"')}${formField('color'+team,'Cor','color',team?'#ffad52':'#46e4ff')}<label>Formação<select name="formation${team}"><option>2-3-1</option><option>3-2-1</option><option>2-2-2</option></select></label>${Array.from({length:7},(_,i)=>`<label>${i===0?'Goleiro':'Jogador de linha '+i}<select name="player${team}_${i}" required><option value="">Escolha uma ficha</option>${Object.entries(entries()).filter(([,m])=>m.sheet?.approved&&((m.sheet.position==='Goleiro')===(i===0))).map(([id,m])=>`<option value="${esc(id)}">${esc(m.sheet.name)} • ${esc(m.sheet.position)}${id.startsWith('npc:')?' (NPC)':''}</option>`).join('')}</select></label>`).join('')}</fieldset>`).join('')}</div><button class="btn primary">PREPARAR CAMPO</button></form>`:'<p>O mestre está preparando a partida. Esta tela será atualizada automaticamente.</p>'}</div>`;$m('Back').onclick=exit;if(isMaster())$m('SetupForm').onsubmit=e=>{e.preventDefault();const f=new FormData(e.target),teams=[0,1].map(t=>({name:f.get('name'+t),color:f.get('color'+t),formation:f.get('formation'+t),ids:Array.from({length:7},(_,i)=>f.get(`player${t}_${i}`))}));send({op:'create',teams});};
+ root.innerHTML=`<header class="topbar"><button id="matchBack" class="link">← SAVE</button><b>Preparar partida</b><small id="matchConnection">${esc(campaign.name)}</small></header><p id="matchError" class="error" role="alert"></p><div class="card match-setup"><span class="badge">7 CONTRA 7</span><h2>Escale os dois times</h2><p>Cada time precisa de seis jogadores de linha e um goleiro. Só aparecem fichas aprovadas pelo mestre.</p>${isMaster()?`<form id="matchSetupForm"><div class="match-team-setup">${[0,1].map(team=>`<fieldset><legend>Time ${team+1}</legend>${formField('name'+team,'Nome do time','text',team?'Visitantes':'Grupão','required maxlength="40"')}${formField('color'+team,'Cor','color',team?'#ffad52':'#46e4ff')}<label>Formação<select name="formation${team}"><option>2-3-1</option><option>3-2-1</option><option>2-2-2</option></select></label>${Array.from({length:7},(_,i)=>`<label>${i===0?'Goleiro':'Jogador de linha '+i}<select name="player${team}_${i}" required><option value="">Escolha uma ficha</option>${Object.entries(entries()).filter(([,m])=>m.sheet?.approved&&((m.sheet.position==='Goleiro')===(i===0))).map(([id,m])=>`<option value="${esc(id)}">${esc(m.sheet.name)} • ${esc(m.sheet.position)}${id.startsWith('npc:')?' (NPC)':''}</option>`).join('')}</select></label>`).join('')}</fieldset>`).join('')}</div><button class="btn primary">PREPARAR CAMPO</button></form>`:'<p>O mestre está preparando a partida. Esta tela será atualizada automaticamente.</p>'}</div>`;$m('Back').onclick=exit;if(isMaster())$m('SetupForm').onsubmit=e=>{e.preventDefault();const f=new FormData(e.target),teams=[0,1].map(t=>({name:f.get('name'+t),color:f.get('color'+t),formation:f.get('formation'+t),ids:Array.from({length:7},(_,i)=>f.get(`player${t}_${i}`))}));send({op:'create',teams});};if(isMaster())savedTeamsControls();
  }
  function layout(){
  pendingKey='';destination=null;
@@ -32,7 +32,7 @@
  $m('Pitch').onclick=e=>setDestination(point(e));$m('Pitch').ondragover=e=>e.preventDefault();$m('Pitch').ondrop=e=>{e.preventDefault();const id=e.dataTransfer.getData('text/plain');if(!match.players[id])return;select(id);setDestination(point(e));if(isMaster()&&['setup','paused'].includes(match.status)&&!match.pending)position();};
  $m('X').oninput=$m('Y').oninput=()=>setDestination({x:Number($m('X').value),y:Number($m('Y').value)});
  $m('ActionForm').onsubmit=e=>{e.preventDefault();send({op:'declare',actor:selected,kind:$m('Action').value,target:$m('Target').value,to:destination,mode:$m('Shot').value,high:$m('High').checked,space:$m('Space').checked,slide:$m('Slide').checked});};$m('Position').onclick=position;
- selected=Object.values(match.players).find(p=>controllable(p)&&!p.red)?.id||Object.keys(match.players)[0];select(selected);masterPanel();tabletopPanel();
+ selected=Object.values(match.players).find(p=>controllable(p)&&!p.red)?.id||Object.keys(match.players)[0];select(selected);masterPanel();tabletopPanel();saveCurrentTeams();
  }
  function setDestination(p){destination=p;$m('X').value=p.x;$m('Y').value=p.y;const marker=$m('Destination');marker.setAttribute('cx',p.x);marker.setAttribute('cy',p.y);marker.style.display='block';}
  function position(){if(match.freeMode)return moveFree();if(!destination)return error('Escolha um destino no campo.');let reason='';if(match.status!=='setup'){reason=prompt('Motivo do reposicionamento:');if(!reason)return;}send({op:'position',actor:selected,to:destination,reason});}
@@ -90,6 +90,43 @@
   }
   if(isMaster()){$m('Ball').style.pointerEvents='auto';$m('Ball').onclick=e=>{e.stopPropagation();ballSelected=true;$m('FreeActor').value='ball';$m('Selected').textContent='Bola • controlada pelo mestre';drawControls();};}
   drawControls();
+ }
+
+ async function teamTask(fn){
+  if(requestBusy)return;requestBusy=true;stateGeneration++;const generation=session;
+  $m('Error').textContent='';try{await fn(()=>generation===session);}catch(e){if(generation===session)error(e);}finally{requestBusy=false;}
+ }
+ const teamUrl=(id='')=>`/api/rpg/campaigns/${campaign.id}/teams${id?'/'+encodeURIComponent(id):''}`;
+ function savedTeamsControls(){
+  const form=$m('SetupForm'),f=form.elements,newIds=[crypto.randomUUID(),crypto.randomUUID()];
+  const read=t=>({name:f.namedItem('name'+t).value,color:f.namedItem('color'+t).value,formation:f.namedItem('formation'+t).value,ids:Array.from({length:7},(_,i)=>f.namedItem(`player${t}_${i}`).value)});
+  function refresh(){for(const t of [0,1]){const select=$m('SavedTeam'+t),old=select.value;select.innerHTML='<option value="">Montar manualmente</option>'+Object.values(campaign.savedTeams||{}).map(team=>`<option value="${esc(team.id)}">${esc(team.name)} • ${esc(team.formation)}</option>`).join('');if(campaign.savedTeams?.[old])select.value=old;}}
+  for(const t of [0,1]){
+   const box=document.createElement('div');box.className='match-saved-team';box.innerHTML=`<label>Carregar time completo<select id="matchSavedTeam${t}"></select></label><button type="button" class="btn ghost" data-refresh>ATUALIZAR LISTA</button><p id="matchTeamMessage${t}" role="status"></p>`;form.querySelectorAll('fieldset')[t].prepend(box);
+   const actions=document.createElement('div');actions.className='match-saved-team';actions.innerHTML='<button type="button" class="btn secondary" data-save>SALVAR COMO NOVO TIME</button><button type="button" class="btn ghost" data-update>ATUALIZAR TIME SALVO</button><button type="button" class="btn ghost" data-delete>EXCLUIR TIME SALVO</button>';form.querySelectorAll('fieldset')[t].append(actions);
+   const message=text=>$m('TeamMessage'+t).textContent=text;
+   $m('SavedTeam'+t).onchange=()=>teamTask(async current=>{
+    const id=$m('SavedTeam'+t).value;if(!id){message('Escalação manual. Salve quando terminar de escolher as sete fichas.');return;}
+    const data=await api(`/api/rpg/campaigns/${campaign.id}`);if(!current())return;
+    campaign.savedTeams=data.savedTeams||{};campaign.members=data.members;campaign.extras=data.extras;refresh();
+    const team=campaign.savedTeams[id];if(!team){message('Este time foi excluído. Atualize sua escolha.');return;}
+    f.namedItem('name'+t).value=team.name;f.namedItem('color'+t).value=team.color;f.namedItem('formation'+t).value=team.formation;
+    let missing=0;for(let i=0;i<7;i++){const select=f.namedItem(`player${t}_${i}`);select.innerHTML='<option value="">Escolha uma ficha</option>'+Object.entries(entries()).filter(([,m])=>m.sheet?.approved&&((m.sheet.position==='Goleiro')===(i===0))).map(([id,m])=>`<option value="${esc(id)}">${esc(m.sheet.name)} • ${esc(m.sheet.position)}</option>`).join('');select.value=team.ids[i];if(!select.value)missing++;}
+    message(missing?`${missing} ficha(s) precisam ser substituídas ou aprovadas. As vagas ficaram em branco.`:'Time carregado. Você pode ajustar a escalação só para esta partida.');
+   });
+   box.querySelector('[data-refresh]').onclick=()=>teamTask(async current=>{const data=await api(teamUrl());if(!current())return;campaign.savedTeams=data.teams;refresh();message('Lista atualizada.');});
+   async function save(update){await teamTask(async current=>{const selectedId=$m('SavedTeam'+t).value,id=update?selectedId:newIds[t];if(!id)throw Error('Selecione o time salvo que deseja atualizar.');const data=await api(teamUrl(id),{method:'PUT',body:JSON.stringify({...read(t),rev:update?(campaign.savedTeams?.[id]?.rev||0):0})});if(!current())return;campaign.savedTeams=data.teams;refresh();$m('SavedTeam'+t).value=id;newIds[t]=crypto.randomUUID();message(update?'Time atualizado para as próximas partidas.':'Time salvo! Nas próximas partidas, basta escolhê-lo na lista.');});}
+   actions.querySelector('[data-save]').onclick=()=>save(false);
+   actions.querySelector('[data-update]').onclick=()=>save(true);
+   actions.querySelector('[data-delete]').onclick=()=>teamTask(async current=>{const id=$m('SavedTeam'+t).value,team=campaign.savedTeams?.[id];if(!team)throw Error('Selecione um time salvo.');if(!confirm(`Excluir o time salvo ${team.name}? As fichas e partidas serão mantidas.`))return;const data=await api(teamUrl(id),{method:'DELETE',body:JSON.stringify({rev:team.rev})});if(!current())return;campaign.savedTeams=data.teams;refresh();message('Time removido da lista. As fichas foram mantidas.');});
+  }
+  refresh();
+ }
+ function saveCurrentTeams(){
+  if(!isMaster())return;
+  const box=document.createElement('details');box.innerHTML='<summary>Salvar times para próximas partidas</summary><p>Guarda nome, cor, formação e as sete fichas. Não altera esta partida.</p>';
+  for(const t of [0,1]){const id=crypto.randomUUID(),button=document.createElement('button');button.type='button';button.className='btn secondary';button.textContent='SALVAR '+match.teams[t].name;button.onclick=()=>teamTask(async current=>{const team=match.teams[t],ids=Object.values(match.players).filter(p=>p.team===t).sort((a,b)=>Number(b.position==='Goleiro')-Number(a.position==='Goleiro')).map(p=>p.id);const data=await api(teamUrl(id),{method:'PUT',body:JSON.stringify({...team,ids,rev:0})});if(!current())return;campaign.savedTeams=data.teams;button.disabled=true;button.textContent='TIME SALVO';});box.append(button);}
+  $m('Master').append(box);
  }
 
 })();

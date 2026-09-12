@@ -6,3 +6,5 @@
 @media(prefers-reduced-motion:reduce){.match-piece,.match-ball{transition:none}}
 
 .match-draggable{touch-action:none;cursor:grab}.match-draggable:active{cursor:grabbing;transition:none}.match-free-controls{display:grid;gap:12px;margin:16px 0}
+
+.match-saved-team{display:grid;gap:8px;border-bottom:1px solid var(--line);padding-bottom:12px}.match-saved-team p{margin:0}
