@@ -1,5 +1,27 @@
 # Grupão Minigames
 
+## Versão 4.8.3 — Times salvos
+
+O mestre pode guardar até 30 times completos por save, com nome, cor, formação e as sete fichas (jogadores e/ou NPCs). As fichas não são copiadas: o time guarda referências aos personagens existentes.
+
+### Como usar
+
+1. Abra **BlueLocker → save → Abrir partida**.
+2. Na preparação, escolha uma vez as sete fichas de um dos lados e use **Salvar como novo time**. Não é necessário preencher a equipe adversária para salvar esse time.
+3. Nas próximas partidas, escolha o time em **Carregar time completo**, em qualquer lado. Nome, cor, formação e escalação são preenchidos de uma vez.
+4. Ajustes na escalação carregada valem só para a partida. Para guardar alterações para as próximas, clique em **Atualizar time salvo**. **Salvar como novo time** cria uma alternativa separada.
+5. Em uma partida já aberta ou encerrada, o mestre encontra **Salvar times para próximas partidas** no painel de controle. Cada botão guarda um dos times sem alterar a partida atual.
+6. **Excluir time salvo** remove apenas a escalação da lista. Não apaga personagens, contas, saves ou partidas. **Atualizar lista** busca alterações feitas em outra aba.
+
+Cada time exige sete fichas aprovadas diferentes, com exatamente um goleiro. É permitido usar uma ficha em vários times salvos, mas a mesma ficha não pode jogar nos dois lados de uma partida. Se uma ficha deixar de estar aprovada ou mudar de posição, ao carregar o time a vaga incompatível fica em branco e a tela avisa; corrija ou aprove a ficha antes de preparar o campo.
+
+Os times ficam em `savedTeams` no mesmo registro da campanha: PostgreSQL quando `DATABASE_URL` está configurada, ou o arquivo local já existente. Saves antigos começam com uma lista vazia, sem conversão manual. Atualizações usam a fila/transação existente e uma revisão por time para impedir sobrescritas de outra aba. Repetir o envio com o mesmo identificador e conteúdo não cria outro time.
+
+Cada nova partida continua copiando os modificadores atuais das fichas. Atualizar um time salvo não modifica uma partida iniciada. Mantidos a mesa livre, os dados independentes, as fichas e os minigames.
+
+Validação: 49 testes automatizados passaram, incluindo 4 novos testes de API para times salvos, permissões, validação, concorrência, persistência após reinício e uso na partida. Sintaxe dos arquivos JavaScript verificada. Interface não validada visualmente em navegador; PostgreSQL real e Render não foram testados.
+
+
 ## Versão 4.8.2 — Mesa livre e dados independentes
 
 Abra **BlueLocker → save → Abrir partida**. Novas partidas usam a mesa livre. Em uma partida de versão anterior, o mestre clica em **Ativar mesa livre**: a escalação, posições, posse, placar, fichas e histórico são preservados; o lance automático pendente é cancelado e a partida fica pausada. Essa ativação não tem botão de retorno ao modo antigo. O motor anterior continua disponível para partidas antigas que ainda não foram convertidas.

@@ -69,6 +69,34 @@ function createRpg({app,express,db,auth,normalize,dataDir}){
  router.post('/campaigns',route(async req=>{const k=key(req),c={id:crypto.randomBytes(8).toString('hex').toUpperCase(),name:clean(req.body.name,80,true),owner:k,notes:'',updatedAt:new Date().toISOString(),members:{[k]:{nick:req.user.nick,sheet:null,rolls:null}}};if(db)await db.query('INSERT INTO rpg_campaigns(id,data) VALUES($1,$2)',[c.id,c]);else{const task=queue.then(()=>{const next={...local,[c.id]:c};persist(next);local=next;});queue=task.catch(()=>{});await task;}return view(c,k);}));
  router.post('/join',route(async req=>{const id=clean(req.body.code,16,true).toUpperCase(),k=key(req);const c=await mutate(id,c=>{if(Object.hasOwn(c.members,k))return;if(Object.keys(c.members).length>=30)fail('Este save chegou a 30 participantes.');c.members[k]={nick:req.user.nick,sheet:null,rolls:null};});return view(c,k);}));
  router.get('/campaigns/:id',route(async req=>{const c=await read(req.params.id);if(!c)fail('Save não encontrado.',404);return view(c,key(req));}));
+ router.get('/campaigns/:id/teams',route(async req=>{const c=await read(req.params.id);member(c,key(req));return {teams:c.savedTeams||{}};}));
+ router.put('/campaigns/:id/teams/:teamId',route(async req=>{
+  const k=key(req),id=req.params.teamId,b=req.body||{};
+  if(!/^[a-zA-Z0-9-]{16,80}$/.test(id))fail('Identificador de time inválido.');
+  const c=await mutate(req.params.id,c=>{
+   member(c,k);if(c.owner!==k)fail('Somente o mestre pode salvar times.',403);
+   const teams=c.savedTeams||{},previous=teams[id];
+   const name=clean(b.name,40,true),color=b.color,formation=b.formation,ids=b.ids;
+   if(typeof color!=='string'||!/^#[0-9a-f]{6}$/i.test(color)||!Object.hasOwn(matchGame.FORMATIONS,formation))fail('Escolha uma cor e formação válidas.');
+   const entries={...c.members,...c.extras};
+   if(!Array.isArray(ids)||ids.length!==7||new Set(ids).size!==7||ids.some(id=>typeof id!=='string'||!Object.hasOwn(entries,id)||!entries[id].sheet?.approved))fail('Selecione sete fichas aprovadas diferentes deste save.');
+   if(ids.filter(id=>entries[id].sheet.position==='Goleiro').length!==1)fail('O time precisa de exatamente um goleiro.');
+   const ordered=[...ids].sort((a,b)=>Number(entries[b].sheet.position==='Goleiro')-Number(entries[a].sheet.position==='Goleiro'));
+   const data={name,color,formation,ids:ordered};
+   if(previous&&JSON.stringify(data)===JSON.stringify({name:previous.name,color:previous.color,formation:previous.formation,ids:previous.ids}))return;
+   if(b.rev!==(previous?.rev||0))fail('Este time foi alterado em outra aba. Atualize a lista antes de salvar.',409);
+   if(!previous&&Object.keys(teams).length>=30)fail('Limite de 30 times salvos por campanha.');
+   c.savedTeams={...teams,[id]:{id,...data,rev:(previous?.rev||0)+1}};
+  });return {teams:c.savedTeams||{}};
+ }));
+ router.delete('/campaigns/:id/teams/:teamId',route(async req=>{
+  const k=key(req),id=req.params.teamId;const c=await mutate(req.params.id,c=>{
+   member(c,k);if(c.owner!==k)fail('Somente o mestre pode excluir times.',403);
+   if(!Object.hasOwn(c.savedTeams||{},id))return;
+   if(req.body?.rev!==c.savedTeams[id].rev)fail('Este time foi alterado. Atualize a lista antes de excluir.',409);
+   delete c.savedTeams[id];
+  });return {teams:c.savedTeams||{}};
+ }));
  router.get('/campaigns/:id/match',route(async req=>{if(db){const r=await db.query("SELECT data->'match' AS match, (data->'members' ? $2) AS allowed FROM rpg_campaigns WHERE id=$1",[req.params.id,key(req)]);if(!r.rows[0])fail('Save não encontrado.',404);if(!r.rows[0].allowed)fail('Você não participa deste save.',403);return {match:matchGame.publicMatch({match:r.rows[0].match})};}const c=local[req.params.id];if(!c)fail('Save não encontrado.',404);member(c,key(req));return {match:matchGame.publicMatch(c)};}));
  router.post('/campaigns/:id/match',route(async req=>{const c=await mutate(req.params.id,c=>matchGame.command(c,key(req),req.body||{},currentSheet));return {match:matchGame.publicMatch(c)};}));
  router.post('/campaigns/:id/extras',route(async req=>{const k=key(req);const c=await mutate(req.params.id,c=>{member(c,k);if(c.owner!==k)fail('Somente o mestre pode criar fichas extras.',403);c.extras=c.extras||{};if(Object.keys(c.extras).length>=30)fail('Limite de 30 fichas extras por save.');const id='npc:'+crypto.randomUUID();c.extras[id]={nick:clean(req.body.name,60,true),sheet:null,rolls:null};});return view(c,k);}));
