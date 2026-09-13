@@ -47,6 +47,13 @@ function currentSheet(sheet){
  const stats=Object.fromEntries(attributes(sheet.position==='Goleiro').map(a=>{const base=sheet.base[a],growth=sheet.growth?.[a]||0,value=base+growth;return[a,{base,growth,bonus:bonus[a]||0,value,modifier:Math.floor((value-8)/2)+(bonus[a]||0)}];}));
  return {...sheet,stats};
 }
+function sheetHash(sheet){return crypto.createHash('sha256').update(JSON.stringify(sheet||null)).digest('hex');}
+function transferSheet(file){
+ if(!file||file.format!=='grupao-bluelocker-sheet'||file.version!==1||!file.sheet||typeof file.sheet!=='object'||Array.isArray(file.sheet))fail('Arquivo de ficha incompatível. Use um arquivo exportado pelo Grupão.');
+ const s=file.sheet;
+ if(!s.base||typeof s.base!=='object'||Array.isArray(s.base)||!s.growth||typeof s.growth!=='object'||Array.isArray(s.growth)||!Number.isInteger(s.level))fail('Atributos ou nível inválidos no arquivo.');
+ const v=validateSheet({...s,approved:false},{},true);delete v.stats;return v;
+}
 function createRpg({app,express,db,auth,normalize,dataDir}){
  const file=path.join(dataDir,'rpg-campaigns.json');let local={};let queue=Promise.resolve();
  async function init(){
@@ -62,13 +69,35 @@ function createRpg({app,express,db,auth,normalize,dataDir}){
  function key(req){return normalize(req.user.nick);}
  function member(c,k){if(!c||!Object.hasOwn(c.members,k))fail('Você não participa deste save.',403);return c.members[k];}
  function view(c,k){member(c,k);return {...c,match:matchGame.publicMatch(c),extras:Object.fromEntries(Object.entries(c.extras||{}).map(([id,m])=>[id,{...m,sheet:currentSheet(m.sheet),rolls:c.owner===k?m.rolls:undefined}])),members:Object.fromEntries(Object.entries(c.members).map(([id,m])=>[id,{...m,sheet:currentSheet(m.sheet),rolls:id===k||c.owner===k?m.rolls:undefined}]))};}
- const router=express.Router();router.use(auth);router.use(express.json({limit:'1500kb'}));
+ const backups=require('./rpg_backup').createBackupTools({validateSheet,normalize,attributes,styles});
+ const router=express.Router();router.use(auth);router.use('/backups',express.json({limit:'95mb'}));router.use(express.json({limit:'1500kb'}));
+ router.use((err,req,res,next)=>{if(err.type==='entity.too.large'||err.type==='entity.parse.failed')return res.status(err.status).json({error:err.type==='entity.too.large'?'Arquivo acima do limite permitido.':'Arquivo JSON inválido.'});next(err);});
  const route=fn=>async(req,res)=>{try{res.json(await fn(req));}catch(e){if(!e.status)console.error('RPG:',e);res.status(e.status||503).json({ok:false,error:e.status?e.message:'Não foi possível salvar agora. Tente novamente.'});}};
  router.get('/catalog',route(async()=>({styles,egos,common,line:attributes(false),goalkeeper:attributes(true)})));
  router.get('/campaigns',route(async req=>{const all=db?(await db.query('SELECT data FROM rpg_campaigns WHERE data->\'members\' ? $1',[key(req)])).rows.map(r=>r.data):Object.values(local);return {campaigns:all.filter(c=>Object.hasOwn(c.members,key(req))).map(c=>({id:c.id,name:c.name,owner:c.owner,updatedAt:c.updatedAt,count:Object.keys(c.members).length})).sort((a,b)=>b.updatedAt.localeCompare(a.updatedAt))};}));
  router.post('/campaigns',route(async req=>{const k=key(req),c={id:crypto.randomBytes(8).toString('hex').toUpperCase(),name:clean(req.body.name,80,true),owner:k,notes:'',updatedAt:new Date().toISOString(),members:{[k]:{nick:req.user.nick,sheet:null,rolls:null}}};if(db)await db.query('INSERT INTO rpg_campaigns(id,data) VALUES($1,$2)',[c.id,c]);else{const task=queue.then(()=>{const next={...local,[c.id]:c};persist(next);local=next;});queue=task.catch(()=>{});await task;}return view(c,k);}));
  router.post('/join',route(async req=>{const id=clean(req.body.code,16,true).toUpperCase(),k=key(req);const c=await mutate(id,c=>{if(Object.hasOwn(c.members,k))return;if(Object.keys(c.members).length>=30)fail('Este save chegou a 30 participantes.');c.members[k]={nick:req.user.nick,sheet:null,rolls:null};});return view(c,k);}));
  router.get('/campaigns/:id',route(async req=>{const c=await read(req.params.id);if(!c)fail('Save não encontrado.',404);return view(c,key(req));}));
+ router.get('/campaigns/:id/sheets/:who/export',route(async req=>{
+  const c=await read(req.params.id),k=key(req);member(c,k);if(c.owner!==k)fail('Somente o mestre pode exportar fichas.',403);
+  const source={...c.members,...c.extras}[req.params.who];if(!source?.sheet)fail('Salve a ficha antes de exportar.',404);
+  return {format:'grupao-bluelocker-sheet',version:1,sheet:transferSheet({format:'grupao-bluelocker-sheet',version:1,sheet:source.sheet})};
+ }));
+ router.post('/campaigns/:id/import/preview',route(async req=>{
+  const c=await read(req.params.id),m=member(c,key(req));if(m.sheet?.approved)fail('Peça ao mestre para liberar sua ficha antes de importar outra.',403);
+  return {sheet:transferSheet(req.body?.file),expectedHash:sheetHash(m.sheet),replacing:!!m.sheet};
+ }));
+ router.post('/campaigns/:id/import',route(async req=>{
+  const k=key(req),b=req.body||{},sheet=transferSheet(b.file);
+  if(typeof b.requestId!=='string'||! /^[a-zA-Z0-9-]{16,80}$/.test(b.requestId))fail('Identificador de importação inválido.');
+  const c=await mutate(req.params.id,c=>{const m=member(c,k);
+   if(m.lastSheetImport?.id===b.requestId){if(m.lastSheetImport.hash!==sheetHash(sheet))fail('Identificador já usado para outra ficha.',409);return;}
+   if(m.sheet?.approved)fail('Peça ao mestre para liberar sua ficha antes de importar outra.',403);
+   if(b.expectedHash!==sheetHash(m.sheet))fail('Sua ficha mudou desde a prévia. Abra o arquivo novamente para conferir.',409);
+   if(m.sheet&&b.replace!==true)fail('Confirme a substituição da sua ficha atual.');
+   m.sheet=sheet;m.lastSheetImport={id:b.requestId,hash:sheetHash(sheet)};
+  });return view(c,k);
+ }));
  router.get('/campaigns/:id/teams',route(async req=>{const c=await read(req.params.id);member(c,key(req));return {teams:c.savedTeams||{}};}));
  router.put('/campaigns/:id/teams/:teamId',route(async req=>{
   const k=key(req),id=req.params.teamId,b=req.body||{};
@@ -103,6 +132,18 @@ function createRpg({app,express,db,auth,normalize,dataDir}){
  router.post('/campaigns/:id/extras/batch',route(async req=>{const k=key(req),{sheets,requestId}=req.body||{};if(!Array.isArray(sheets)||sheets.length<1||sheets.length>14)fail('Envie entre 1 e 14 fichas.');if(typeof requestId!=='string'||! /^[a-zA-Z0-9-]{16,80}$/.test(requestId))fail('Identificador de criação inválido.');const c=await mutate(req.params.id,c=>{member(c,k);if(c.owner!==k)fail('Somente o mestre pode gerar NPCs.',403);if((c.npcBatches||[]).includes(requestId))return;c.extras=c.extras||{};if(Object.keys(c.extras).length+sheets.length>30)fail('O lote ultrapassa o limite de 30 fichas extras.');const validated=sheets.map(s=>validateSheet(s,{},true));for(const sheet of validated){const id='npc:'+crypto.randomUUID();c.extras[id]={nick:sheet.name,sheet,rolls:null};}c.npcBatches=[...(c.npcBatches||[]),requestId].slice(-100);});return view(c,k);}));
  router.put('/campaigns/:id/sheets/:who',route(async req=>{const k=key(req),target=req.params.who;const c=await mutate(req.params.id,c=>{member(c,k);const extra=target.startsWith('npc:'),master=c.owner===k;if(extra&&!master)fail('Somente o mestre pode editar fichas extras.',403);if(extra&&!Object.hasOwn(c.extras||{},target))fail('Ficha extra não encontrada.',404);const m=extra?c.extras[target]:member(c,target);if(!master&&target!==k)fail('Você só pode editar sua ficha.',403);if(!master&&m.sheet?.approved)fail('Peça ao mestre para liberar a edição da ficha.',403);m.sheet=validateSheet(req.body,m,master);});return view(c,k);}));
  router.patch('/campaigns/:id',route(async req=>{const k=key(req);const c=await mutate(req.params.id,c=>{if(c.owner!==k)fail('Somente o mestre pode editar o save.',403);c.name=clean(req.body.name,80,true);c.notes=clean(req.body.notes,10000);});return view(c,k);}));
+ router.get('/campaigns/:id/backup',route(async req=>{const c=await read(req.params.id),k=key(req);member(c,k);return backups.pack(c,k);}));
+ router.post('/backups/preview',route(async req=>backups.summary(backups.parse(req.body?.file,key(req)))));
+ router.post('/backups/restore',route(async req=>{
+  const b=req.body||{},k=key(req);if(b.confirm!==true)fail('Confirme a criação de uma nova cópia da campanha.');
+  const parsed=backups.parse(b.file,k);if(b.expectedChecksum!==parsed.checksum)fail('O arquivo mudou desde a prévia. Abra novamente.',409);
+  const c=backups.restore(parsed,k,b.name,b.requestId);
+  function existing(old){if(old.restoreInfo?.requestHash!==c.restoreInfo.requestHash||old.restoreInfo?.checksum!==c.restoreInfo.checksum)fail('Identificador de restauração já utilizado. Abra o arquivo novamente.',409);return old;}
+  let saved;
+  if(db){const r=await db.query('INSERT INTO rpg_campaigns(id,data) VALUES($1,$2) ON CONFLICT(id) DO NOTHING RETURNING data',[c.id,c]);saved=r.rows[0]?.data;if(!saved){const old=await read(c.id);if(!old)fail('Tente restaurar novamente.',409);saved=existing(old);}}
+  else{const task=queue.then(()=>{if(Object.hasOwn(local,c.id))return existing(local[c.id]);const next={...local,[c.id]:c};persist(next);local=next;return c;});queue=task.catch(()=>{});saved=await task;}
+  return {id:saved.id,name:saved.name};
+ }));
  app.use('/api/rpg',router);
  return {init};
 }

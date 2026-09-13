@@ -1,5 +1,74 @@
 # Grupão Minigames
 
+## Versão 4.8.8 — Zoom e navegação pelo campo
+
+Em **BlueLocker → save → Abrir partida**, use os controles acima do campo:
+
+- **+ / −**: aproximação de 100% a 300%. O campo começa totalmente enquadrado, inclusive em telas pequenas.
+- **Navegar**: arraste a visão com mouse ou um dedo. Nesse modo, a roda do mouse aproxima no ponto indicado pelo cursor; pinça com dois dedos aproxima e desloca a visão. Desative Navegar para voltar a mover tokens, usar a régua ou segurar por 2 segundos para adicionar/remover marcações.
+- **Enquadrar campo**: restaura o campo inteiro e centralizado.
+- Teclado: com foco na visão do campo e Navegar ativo, setas deslocam, +/− aproximam/afastam, Home enquadra e Escape sai do modo Navegar.
+
+A visão é individual, não altera dados da partida nem a visão dos outros participantes. O zoom permanece durante as atualizações periódicas e volta ao enquadramento inicial ao reabrir a tela. Redimensionar a janela mantém o enquadramento proporcional. Régua, marcações e destinos continuam referenciados aos 105 × 68 metros do campo.
+
+Validação: **77 testes automatizados passaram**, incluindo limites do zoom, deslocamento, ponto sob o cursor, redimensionamento e coordenadas da régua/destinos após zoom. Sintaxe JavaScript verificada. A ferramenta de navegador falhou ao iniciar; o fluxo visual e os gestos em aparelho físico não foram validados. PostgreSQL real e Render não foram testados. Servidor e persistência não foram alterados.
+
+
+## Versão 4.8.7 — Backup e restauração de campanhas
+
+O mestre pode baixar um backup JSON em **BlueLocker → abrir save → Backup da campanha → Baixar backup do save**. Para restaurar, entre em **BlueLocker → Meus saves → Restaurar campanha**, selecione o arquivo, confira a prévia, escolha o nome e confirme.
+
+- Inclui participantes, fichas e aprovações, fotos, NPCs, times salvos, diário, partida atual (posições, posse, placar, tempo, marcações, dados no histórico e lance pendente) e resumos das partidas anteriores.
+- Restaura uma nova campanha com outro código, sem sobrescrever o save original. Partidas em andamento retornam pausadas; o mestre pode retomar. Os atributos copiados na partida continuam independentes de edições posteriores nas fichas.
+- Use a mesma conta do mestre original. Os participantes são vinculados pelos nicknames existentes. O arquivo não contém contas, senhas, configurações do servidor ou dados dos outros minigames; não substitui o backup do banco PostgreSQL completo.
+- A prévia não grava dados. A confirmação valida o conteúdo e a integridade novamente. Repetir o mesmo envio não cria outra cópia. Abrir o arquivo novamente inicia uma nova restauração.
+- Limite de 90 MB por arquivo. Backup manual: guarde o JSON baixado. O checksum detecta alteração acidental, não comprova autoria. Metadados temporários de importação de fichas e de restaurações anteriores não são transportados.
+- Mantido o armazenamento PostgreSQL quando configurado, ou o arquivo local existente; nenhuma migração é necessária.
+
+Validação: **73 testes automatizados passaram**, incluindo integridade, permissões, preservação do original, fotos, times, lance automático pendente, desfazer, restauração concorrente sem duplicação, arquivos acima do limite de uma ficha e persistência local após reinício. Sintaxe JavaScript verificada. A interface não foi validada no navegador; PostgreSQL real e Render não foram testados.
+
+
+## Versão 4.8.6 — Marcações compartilhadas no campo
+
+Em **BlueLocker → save → Abrir partida**, segure o botão esquerdo do mouse ou o dedo por **2 segundos** em um espaço do campo para colocar um marcador vermelho de localização. Um círculo indica que o gesto está em andamento. Para remover, segure por **2 segundos sobre o marcador**.
+
+- Mestre e participantes podem colocar e remover marcações. Todos na partida veem os mesmos marcadores pela sincronização existente (consulta a cada 1,2 segundo). Cada marcador identifica quem o colocou ao passar o mouse.
+- Soltar antes de 2 segundos, arrastar mais de 8 pixels, cancelar o toque, sair do campo com o mouse ou perder o foco cancela a espera. Não há repetição automática ao continuar segurando.
+- Pressionar tokens/bola mantém os gestos de movimentação anteriores; não cria uma marcação. Com a régua ativa, os gestos continuam exclusivos da medição. Clique curto em marcador não o remove nem escolhe um destino de movimento.
+- As marcações ficam no mesmo estado persistido da partida, usando PostgreSQL quando configurado ou o armazenamento local existente. Permanecem ao atualizar a página e após reinício, até serem removidas. Uma nova partida começa sem marcações. Limite de 50 marcações por partida.
+- Adicionar ou remover uma marcação não altera posições, posse, dados, placar ou cronômetro. Desfazer um lance não desfaz marcações. As operações usam identificadores próprios para impedir duplicação por repetição de envio; até 200 identificadores removidos são lembrados para evitar reaparecimento por uma repetição antiga.
+
+Preservados importação/exportação de fichas, régua, times salvos, mesa livre, contas, minigames e persistência.
+
+Validação: **66 testes automatizados passaram**, incluindo seis novos testes de tempo exato de 2 segundos, cancelamento de gesto, permissões, limites, repetição, concorrência, independência do jogo e persistência/sincronização via API. Sintaxe JavaScript verificada. O novo gesto não foi validado em navegador ou aparelho físico; PostgreSQL real e Render não foram testados.
+
+
+## Versão 4.8.5 — Exportar e importar fichas
+
+### Mestre: criar e entregar uma ficha
+
+1. No save, use **Personagens controlados pelo mestre → Criar ficha extra** (ou uma ficha existente).
+2. Preencha os dados do personagem, foto, atributos, nível e evolução; clique em **Salvar ficha**.
+3. Abra a ficha e clique em **Exportar ficha salva**. O site baixa um arquivo `.json`.
+4. Envie esse arquivo ao participante pelo meio que preferir. O site não envia mensagens automaticamente.
+
+A exportação usa a última versão salva, não alterações ainda no formulário. O arquivo contém somente nome, idade, nacionalidade, altura, posição, estilo, Ego, iniciais, evolução, nível, talentos, arma, observações, cor e foto do personagem. Não contém contas, senhas, código do save, diário, outras fichas ou dados de partida. A ficha extra original é mantida.
+
+### Participante: importar para a própria conta
+
+1. Entre na sua conta e abra o save do qual participa.
+2. Em **Importar minha ficha**, selecione o JSON recebido.
+3. Confira a prévia com foto/cartão, atributos, modificadores e textos. Nada é salvo só por abrir o arquivo.
+4. Se já existir uma ficha não aprovada, marque a confirmação para substituí-la. Clique em **Importar para minha conta**. Cancelar mantém a ficha atual.
+5. A ficha importada aguarda aprovação do mestre, inclusive quanto a nível e evolução. Aprovações e modificadores vindos do arquivo não são aceitos como autoridade: os modificadores são recalculados.
+
+Fichas aprovadas precisam ser liberadas pelo mestre antes de outra importação. O arquivo pode ser usado em outro save, desde que o usuário participe dele. As regras continuam: idade 15–20, iniciais 1–12, total até 30 e até dois pontos de evolução por nível após o primeiro. PNG até 1 MB e 2048 × 2048; arquivo de importação até 1450 KiB na interface. Arquivos podem ser editados externamente, por isso toda importação exige revisão do mestre para uso nas partidas.
+
+O servidor valida tanto a prévia quanto a gravação. A ficha só pode ser importada para a própria conta, sem criar usuários ou NPCs. Uma prévia desatualizada é rejeitada; repetir a última requisição de importação não reaplica a substituição. Saves, fotos e fichas usam a persistência existente (PostgreSQL quando configurado, arquivo local no desenvolvimento). Times salvos continuam referenciando a ficha da conta; partidas já iniciadas mantêm os modificadores copiados anteriormente.
+
+Validação: 60 testes automatizados passaram (55 anteriores e cinco novos de transferência), cobrindo permissões, arquivo inválido, foto, limites, prévia sem gravação, confirmação, aprovação, repetição, concorrência e persistência após reinício. Sintaxe JavaScript verificada. A nova interface não foi validada em navegador; PostgreSQL real e Render não foram testados.
+
+
 ## Versão 4.8.4 — Régua do campo
 
 Abra **BlueLocker → save → Abrir partida** e use **📏 Régua**, acima do campo.

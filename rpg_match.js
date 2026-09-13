@@ -17,7 +17,7 @@ function log(m,message,extra={}){m.log.push({id:crypto.randomUUID(),at:Date.now(
 function get(m,id){if(!Object.hasOwn(m.players,id))fail('Jogador não escalado.');return m.players[id];}
 function control(c,m,k,id){const p=get(m,id);if(k!==c.owner&&p.controller!==k)fail('Você não controla este personagem.',403);if(p.red)fail('Este jogador foi expulso.');return p;}
 function master(c,k){if(c.owner!==k)fail('Apenas o mestre pode fazer isso.',403);}
-function snapshot(m){const {undo,log,diceRequests,...state}=m;return structuredClone(state);}
+function snapshot(m){const {undo,log,diceRequests,pins,removedPins,...state}=m;return structuredClone(state);}
 function checkpoint(m){m.undo=snapshot(m);}
 function elapsed(m,now=Date.now()){return Math.min(HALF,m.elapsed+(m.running?Math.max(0,now-m.anchor):0));}
 function clock(m,now=Date.now()){m.elapsed=elapsed(m,now);m.anchor=now;if(m.elapsed>=HALF&&m.status==='playing'&&!m.pending){m.running=false;m.status=m.half===1?'interval':'finished';log(m,m.half===1?'Fim do primeiro tempo. Intervalo.':'Fim da partida.');}}
@@ -154,6 +154,20 @@ function command(c,k,input,currentSheet){
  if(!Object.hasOwn(c.members,k))fail('Você não participa deste save.',403);
  if(input.op==='create'){master(c,k);createMatch(c,input,currentSheet);return;}
  const m=c.match;if(!m||m.id!==input.matchId)fail('A partida mudou. Atualize a tela.',409);
+ if(input.op==='pin'){
+  const id=input.pinId;if(typeof id!=='string'||! /^[a-zA-Z0-9-]{16,80}$/.test(id))fail('Identificador de marcação inválido.');
+  if(!['add','remove'].includes(input.action))fail('Marcação inválida.');
+  const pins=m.pins||[];
+  if(input.action==='add'){
+   const to=point(input.to);if(pins.some(p=>p.id===id)||(m.removedPins||[]).includes(id))return;
+   if(pins.length>=50)fail('Limite de 50 marcações. Remova uma para marcar outro lugar.');
+   m.pins=[...pins,{id,...to,by:c.members[k].nick||k}];
+  }else{
+   if(!pins.some(p=>p.id===id))return;
+   m.pins=pins.filter(p=>p.id!==id);m.removedPins=[...(m.removedPins||[]),id].slice(-200);
+  }
+  m.rev++;return;
+ }
  if(['dice','freeMove','freeBall'].includes(input.op))return tabletop(c,m,k,input);
  if(m.freeMode&&['declare','react','advance','roll','adjust','position'].includes(input.op))fail('Na mesa livre, mova as peças e use os dados independentes.');
  clock(m);
