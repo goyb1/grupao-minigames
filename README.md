@@ -1,5 +1,14 @@
 # Grupão Minigames
 
+## Versão 4.8.9 — Exclusão de fichas e tela cheia
+
+- O mestre pode abrir uma ficha e clicar em **Excluir ficha**. A confirmação informa os times salvos dependentes que também serão excluídos. Para participantes, a conta e a participação no save permanecem; a ficha fica vazia. Para NPCs, o personagem extra é removido e libera uma vaga.
+- Fichas escaladas na partida atual, inclusive encerrada, ficam protegidas: prepare outra partida sem a ficha antes de excluí-la. Partida, histórico e demais fichas são preservados. O servidor exige mestre, confirmação e que a ficha não tenha mudado desde a prévia.
+- Em **Abrir partida**, clique em **Tela cheia**, junto aos controles de zoom. Campo, zoom, régua e marcações continuam disponíveis. Use **Sair da tela cheia** ou Escape para voltar. Quando a API de tela cheia não está disponível, o campo ocupa a janela do navegador. O enquadramento considera largura e altura disponíveis.
+
+Validação: **79 testes automatizados passaram**, incluindo permissões, confirmação, conflito de edição, proteção de fichas escaladas, remoção de times dependentes e gravação local. Sintaxe JavaScript verificada. Tela cheia e gestos não foram validados no navegador/aparelho físico; PostgreSQL real e Render não foram testados.
+
+
 ## Versão 4.8.8 — Zoom e navegação pelo campo
 
 Em **BlueLocker → save → Abrir partida**, use os controles acima do campo:
