@@ -1,5 +1,18 @@
 # Grupão Minigames
 
+## Versão 4.8.10 — Sincronização econômica do campo
+
+- A consulta envia um identificador do estado recebido. Se nada mudou, a resposta contém apenas confirmação e identificador, sem reenviar jogadores, marcações e histórico. Clientes antigos continuam recebendo respostas completas.
+- Com PostgreSQL, consultas sem alterações leem apenas metadados do jogo; alterações exigem uma segunda leitura da partida. Sem cache global que possa ficar desatualizado entre processos. Permissões são verificadas antes de qualquer resposta.
+- Após três consultas sem mudanças, o intervalo passa de 1,2 para 2,5 segundos; após oito, para 5 segundos. Alterações detectadas e comandos locais retomam a frequência rápida. Uma alteração de outro jogador após inatividade pode demorar cerca de 5 segundos, além da rede.
+- Abas ocultas não iniciam novas consultas; ao voltar, buscam uma atualização completa. Uma consulta já em andamento pode terminar. Não há redesenho do campo/histórico em respostas sem mudanças. Relógio continua calculado localmente quando visível. Fim de tempo e reinício do servidor também invalidam o identificador, mesmo sem novo comando.
+- Falhas de rede usam espera crescente até 30 segundos. Nenhuma alteração em regras, fichas, banco, comandos, marcações ou permissões.
+
+Validação: 82 testes passaram. Novo teste de API mede resposta sem alterações com menos de 1% do JSON completo em uma partida sintética com 200 registros; isso não é medição do consumo real da hospedagem. Sintaxe verificada. Não testado no navegador, PostgreSQL real, Supabase ou alwaysdata. Não garante ausência de limites do provedor; monitorar consumo após publicar.
+
+Atualização no alwaysdata: publique os arquivos no GitHub; no SSH, dentro de /home/grupao/grupao, rode `git pull --ff-only` e `npm ci --omit=dev`. Se houver conflito, não descarte alterações locais. Reinicie o site pelo painel. Mantenha DATABASE_URL e banco Supabase existentes. Não inclua arquivos de dados ou credenciais no GitHub. Usuários devem atualizar a página para receber o cliente novo.
+
+
 ## Versão 4.8.9 — Exclusão de fichas e tela cheia
 
 - O mestre pode abrir uma ficha e clicar em **Excluir ficha**. A confirmação informa os times salvos dependentes que também serão excluídos. Para participantes, a conta e a participação no save permanecem; a ficha fica vazia. Para NPCs, o personagem extra é removido e libera uma vaga.

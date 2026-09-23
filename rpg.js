@@ -126,7 +126,20 @@ function createRpg({app,express,db,auth,normalize,dataDir}){
    delete c.savedTeams[id];
   });return {teams:c.savedTeams||{}};
  }));
- router.get('/campaigns/:id/match',route(async req=>{if(db){const r=await db.query("SELECT data->'match' AS match, (data->'members' ? $2) AS allowed FROM rpg_campaigns WHERE id=$1",[req.params.id,key(req)]);if(!r.rows[0])fail('Save não encontrado.',404);if(!r.rows[0].allowed)fail('Você não participa deste save.',403);return {match:matchGame.publicMatch({match:r.rows[0].match})};}const c=local[req.params.id];if(!c)fail('Save não encontrado.',404);member(c,key(req));return {match:matchGame.publicMatch(c)};}));
+ router.get('/campaigns/:id/match',route(async req=>{
+  const k=key(req),known=req.query.since;
+  let c;
+  if(db&&typeof known==='string'){
+   const fields=['id','rev','status','half','elapsed','anchor','running','restarted'];
+   const projection=fields.map(f=>`'${f}',data->'match'->'${f}'`).join(',');
+   const r=await db.query(`SELECT jsonb_build_object(${projection},'pending',(data->'match'->'pending' IS NOT NULL AND data->'match'->'pending'<>'null'::jsonb)) AS meta, (data->'members' ? $2) AS allowed FROM rpg_campaigns WHERE id=$1`,[req.params.id,k]);
+   if(!r.rows[0])fail('Save não encontrado.',404);if(!r.rows[0].allowed)fail('Você não participa deste save.',403);
+   const sync=require('./rpg_sync').token(r.rows[0].meta);if(known===sync)return {unchanged:true,sync};
+  }
+  if(db){const r=await db.query("SELECT data->'match' AS match, (data->'members' ? $2) AS allowed FROM rpg_campaigns WHERE id=$1",[req.params.id,k]);if(!r.rows[0])fail('Save não encontrado.',404);if(!r.rows[0].allowed)fail('Você não participa deste save.',403);c={match:r.rows[0].match};}
+  else{c=local[req.params.id];if(!c)fail('Save não encontrado.',404);member(c,k);}
+  const sync=require('./rpg_sync').token(c.match);if(known===sync)return {unchanged:true,sync};return {match:matchGame.publicMatch(c),sync};
+ }));
  router.post('/campaigns/:id/match',route(async req=>{const c=await mutate(req.params.id,c=>matchGame.command(c,key(req),req.body||{},currentSheet));return {match:matchGame.publicMatch(c)};}));
  router.post('/campaigns/:id/extras',route(async req=>{const k=key(req);const c=await mutate(req.params.id,c=>{member(c,k);if(c.owner!==k)fail('Somente o mestre pode criar fichas extras.',403);c.extras=c.extras||{};if(Object.keys(c.extras).length>=30)fail('Limite de 30 fichas extras por save.');const id='npc:'+crypto.randomUUID();c.extras[id]={nick:clean(req.body.name,60,true),sheet:null,rolls:null};});return view(c,k);}));
  router.post('/campaigns/:id/extras/batch',route(async req=>{const k=key(req),{sheets,requestId}=req.body||{};if(!Array.isArray(sheets)||sheets.length<1||sheets.length>14)fail('Envie entre 1 e 14 fichas.');if(typeof requestId!=='string'||! /^[a-zA-Z0-9-]{16,80}$/.test(requestId))fail('Identificador de criação inválido.');const c=await mutate(req.params.id,c=>{member(c,k);if(c.owner!==k)fail('Somente o mestre pode gerar NPCs.',403);if((c.npcBatches||[]).includes(requestId))return;c.extras=c.extras||{};if(Object.keys(c.extras).length+sheets.length>30)fail('O lote ultrapassa o limite de 30 fichas extras.');const validated=sheets.map(s=>validateSheet(s,{},true));for(const sheet of validated){const id='npc:'+crypto.randomUUID();c.extras[id]={nick:sheet.name,sheet,rolls:null};}c.npcBatches=[...(c.npcBatches||[]),requestId].slice(-100);});return view(c,k);}));
