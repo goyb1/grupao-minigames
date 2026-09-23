@@ -13,10 +13,21 @@
  const entries=()=>({...campaign.members,...campaign.extras});
  function error(e){if($m('Error'))$m('Error').textContent=e.message||String(e);}
  function accept(data){if(!data.match)return;const modeChanged=!!match?.freeMode!==!!data.match.freeMode;preparing=false;if(match&&data.match.id===match.id&&data.match.rev<match.rev)return;match=data.match;receivedAt=performance.now();if(modeChanged||paintedId!==match.id||!$m('Team0')){paintedId=match.id;layout();}draw();}
- async function poll(){if(pollBusy||requestBusy||preparing||currentView!=='match')return;const generation=session,state=stateGeneration;pollBusy=true;try{const d=await api(`/api/rpg/campaigns/${campaign.id}/match`);if(generation!==session||state!==stateGeneration||preparing)return;if(d.match)accept(d);$m('Connection').textContent='Campo sincronizado';}catch(e){if(generation===session&&$m('Connection'))$m('Connection').textContent='Sem conexão. Tentando reconectar…';}finally{pollBusy=false;}}
- async function send(payload){if(requestBusy)return false;requestBusy=true;stateGeneration++;const generation=session;$m('Error').textContent='';try{const data=await api(`/api/rpg/campaigns/${campaign.id}/match`,{method:'POST',body:JSON.stringify({matchId:match?.id,rev:match?.rev,...payload})});if(generation===session)accept(data);return true;}catch(e){if(generation===session)error(e);return false;}finally{requestBusy=false;}}
+ const pollPolicy=window.GrupaoPoll.createPolicy();let syncToken='';
+ function schedulePoll(){clearTimeout(pollTimer);if(currentView==='match'&&!document.hidden)pollTimer=setTimeout(poll,pollPolicy.delay);}
+ async function poll(){
+  if(document.hidden||currentView!=='match')return;
+  if(pollBusy||requestBusy||preparing){schedulePoll();return;}
+  const generation=session,state=stateGeneration;pollBusy=true;
+  try{const suffix=syncToken?'?since='+encodeURIComponent(syncToken):'',d=await api(`/api/rpg/campaigns/${campaign.id}/match${suffix}`);if(generation!==session||state!==stateGeneration||preparing||document.hidden)return;if(d.match)accept(d);syncToken=d.sync||'';pollPolicy.result(!!d.unchanged);if($m('Connection'))$m('Connection').textContent='Campo sincronizado';}
+  catch(e){if(generation===session){pollPolicy.failed();if($m('Connection'))$m('Connection').textContent='Sem conexão. Tentando reconectar…';}}
+  finally{pollBusy=false;if(generation===session)schedulePoll();}
+ }
+ document.addEventListener('visibilitychange',()=>{clearTimeout(pollTimer);if(!document.hidden&&currentView==='match'){pollPolicy.reset();syncToken='';poll();}});
+
+ async function send(payload){if(requestBusy)return false;requestBusy=true;pollPolicy.reset();syncToken='';stateGeneration++;const generation=session;$m('Error').textContent='';try{const data=await api(`/api/rpg/campaigns/${campaign.id}/match`,{method:'POST',body:JSON.stringify({matchId:match?.id,rev:match?.rev,...payload})});if(generation===session)accept(data);return true;}catch(e){if(generation===session)error(e);return false;}finally{requestBusy=false;}}
  function exit(){zoom?.destroy();zoom=null;pins?.destroy();pins=null;ruler?.destroy();ruler=null;session++;clearInterval(pollTimer);clearInterval(clockTimer);back().catch(error);}
- window.openRpgMatch=(c,returnTo)=>{session++;clearInterval(pollTimer);clearInterval(clockTimer);campaign=c;match=c.match;preparing=false;back=returnTo;selected='';destination=null;pendingKey='';paintedId='';show('match');root.innerHTML='<p>Carregando campo…</p>';if(match){paintedId=match.id;receivedAt=performance.now();layout();draw();}else setup();pollTimer=setInterval(poll,1200);clockTimer=setInterval(drawClock,200);poll();};
+ window.openRpgMatch=(c,returnTo)=>{session++;syncToken='';pollPolicy.reset();clearInterval(pollTimer);clearInterval(clockTimer);campaign=c;match=c.match;preparing=false;back=returnTo;selected='';destination=null;pendingKey='';paintedId='';show('match');root.innerHTML='<p>Carregando campo…</p>';if(match){paintedId=match.id;receivedAt=performance.now();layout();draw();}else setup();clockTimer=setInterval(drawClock,200);poll();};
  function setup(){
  zoom?.destroy();zoom=null;pins?.destroy();pins=null;ruler?.destroy();ruler=null;
  preparing=!!match&&isMaster();
@@ -41,7 +52,7 @@
  function position(){if(match.freeMode)return moveFree();if(!destination)return error('Escolha um destino no campo.');let reason='';if(match.status!=='setup'){reason=prompt('Motivo do reposicionamento:');if(!reason)return;}send({op:'position',actor:selected,to:destination,reason});}
  function select(id){selected=id;ballSelected=false;if($m('FreeActor'))$m('FreeActor').value=id;$m('Actor').value=id;const p=match.players[id];$m('Selected').innerHTML=`<span class="badge">${esc(match.teams[p.team].name)}</span><h3>${esc(p.name)} • ${esc(p.position)}</h3><p>${Object.entries(p.mods).map(([a,v])=>`${esc(a)} ${v>=0?'+':''}${v}`).join(' · ')}</p>`;drawControls();}
  function drawControls(){if(!$m('Declare'))return;const p=match.players[selected];$m('Declare').disabled=!p||!controllable(p)||p.red||match.status!=='playing'||!!match.pending;$m('Position').classList.toggle('hidden',!isMaster()||!['setup','paused'].includes(match.status)||!!match.pending);root.querySelectorAll('.match-piece').forEach(b=>{const p=match.players[b.dataset.player];b.classList.toggle('selected',p.id===selected);b.classList.toggle('has-ball',match.ball.holder===p.id);b.classList.toggle('sent-off',p.red);b.draggable=!match.freeMode&&isMaster()&&['setup','paused'].includes(match.status)&&!match.pending;});if(match.freeMode){$m('Position').classList.remove('hidden');$m('Position').disabled=match.status==='finished'||(!ballSelected&&!controllable(p));}}
- function drawClock(){if(currentView!=='match'||!match||!$m('Clock'))return;const elapsed=Math.min(900000,match.elapsed+(match.running?performance.now()-receivedAt:0)),total=Math.floor(elapsed/1000)+(match.half===2?900:0);$m('Clock').textContent=`${String(Math.floor(total/60)).padStart(2,'0')}:${String(total%60).padStart(2,'0')}`;$m('State').textContent=({setup:'Preparação',playing:match.running?`${match.half}º tempo`:'Relógio pausado',paused:'Pausada',interval:'Intervalo',finished:'Encerrada'})[match.status];}
+ function drawClock(){if(document.hidden||currentView!=='match'||!match||!$m('Clock'))return;const elapsed=Math.min(900000,match.elapsed+(match.running?performance.now()-receivedAt:0)),total=Math.floor(elapsed/1000)+(match.half===2?900:0);$m('Clock').textContent=`${String(Math.floor(total/60)).padStart(2,'0')}:${String(total%60).padStart(2,'0')}`;$m('State').textContent=({setup:'Preparação',playing:match.running?`${match.half}º tempo`:'Relógio pausado',paused:'Pausada',interval:'Intervalo',finished:'Encerrada'})[match.status];}
  function draw(){
  pins?.draw(match.pins||[]);
  $m('Team0').textContent=match.teams[0].name+' '+(match.half===1?'→':'←');$m('Team1').textContent=(match.half===1?'←':'→')+' '+match.teams[1].name;$m('Team0').style.color=match.teams[0].color;$m('Team1').style.color=match.teams[1].color;$m('Score').textContent=match.score.join(' × ');
@@ -97,7 +108,7 @@
  }
 
  async function teamTask(fn){
-  if(requestBusy)return;requestBusy=true;stateGeneration++;const generation=session;
+  if(requestBusy)return;requestBusy=true;pollPolicy.reset();syncToken='';stateGeneration++;const generation=session;
   $m('Error').textContent='';try{await fn(()=>generation===session);}catch(e){if(generation===session)error(e);}finally{requestBusy=false;}
  }
  const teamUrl=(id='')=>`/api/rpg/campaigns/${campaign.id}/teams${id?'/'+encodeURIComponent(id):''}`;

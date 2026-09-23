@@ -1,0 +1,2 @@
+'use strict';
+(()=>{function createPolicy(){let idle=0,failures=0;return {reset(){idle=failures=0;},result(unchanged){failures=0;idle=unchanged?idle+1:0;},failed(){failures++;},get delay(){return failures?Math.min(30000,1500*2**Math.min(failures,5)):idle<3?1200:idle<8?2500:5000;}};}const api={createPolicy};if(typeof module!=='undefined')module.exports=api;if(typeof window!=='undefined')window.GrupaoPoll=api;})();
