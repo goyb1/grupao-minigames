@@ -160,6 +160,11 @@ function createRpg({app,express,db,auth,normalize,dataDir}){
  router.get('/campaigns/:id/sheets/:who/delete-preview',route(async req=>{const c=await read(req.params.id),k=key(req);member(c,k);if(c.owner!==k)fail('Somente o mestre pode excluir fichas.',403);const id=req.params.who,m={...c.members,...c.extras}[id];if(!m)fail('Ficha não encontrada.',404);return {expectedHash:sheetHash(m),name:m.sheet?.name||m.nick,teams:Object.values(c.savedTeams||{}).filter(t=>t.ids.includes(id)).map(t=>t.name),blocked:!!c.match?.players?.[id]};}));
  router.delete('/campaigns/:id/sheets/:who',route(async req=>{const k=key(req),id=req.params.who,b=req.body||{};const c=await mutate(req.params.id,c=>{member(c,k);if(c.owner!==k)fail('Somente o mestre pode excluir fichas.',403);if(b.confirm!==true)fail('Confirme a exclusão da ficha.');const extra=id.startsWith('npc:'),m=(extra?c.extras:c.members)?.[id];if(!m)fail('Ficha não encontrada.',404);if(c.match?.players?.[id])fail('Esta ficha está escalada na partida atual. Prepare outra partida sem ela antes de excluir.',409);if(b.expectedHash!==sheetHash(m))fail('A ficha mudou. Confira novamente antes de excluir.',409);if(extra)delete c.extras[id];else{m.sheet=null;m.rolls=null;delete m.lastSheetImport;}for(const [tid,t] of Object.entries(c.savedTeams||{}))if(t.ids.includes(id))delete c.savedTeams[tid];});return view(c,k);}));
  app.use('/api/rpg',router);
- return {init};
+ async function presenceAccess(id,nick){
+  const k=normalize(nick);
+  if(db){const result=await db.query("SELECT data->'members' ? $2 AS allowed FROM rpg_campaigns WHERE id=$1",[id,k]);return result.rows[0]?.allowed===true;}
+  return !!local[id]&&Object.hasOwn(local[id].members,k);
+ }
+ return {init,presenceAccess};
 }
 module.exports={createRpg,validateSheet,photo,styles,attributes};

@@ -1,5 +1,33 @@
 # Grupão Minigames
 
+## Versão 4.8.15 — Anúncios de atualizações no Discord
+
+Em **Administração → Atualizações no Discord**, goyb pode preencher versão, título, novidades e correções, revisar uma prévia e publicar no canal configurado. Prévia não envia; editar o conteúdo invalida a prévia. A integração usa webhook, sem bot adicional ou consultas periódicas. Configuração e passo a passo: **DISCORD.md**.
+
+A URL privada fica exclusivamente em DISCORD_UPDATES_WEBHOOK_URL no servidor, nunca no cliente, histórico ou resposta de erro. PUBLIC_SITE_URL define o link público (padrão https://grupao.alwaysdata.net). Destino do webhook restrito a HTTPS em discord.com, sem redirecionamentos. APIs protegidas pelas verificações de login e administrador existentes. Menções desativadas no payload.
+
+Registros por versão ficam em uma nova tabela independente discord_updates no PostgreSQL, criada no primeiro acesso ao recurso; em modo local, data/discord-updates.json. Reserva persistida antes de enviar evita duas publicações concorrentes da mesma versão e repetições após reiniciar. Envios ambíguos não são repetidos automaticamente: após dois minutos, o administrador confere o canal e registra se chegou ou libera nova tentativa. Recusas explícitas permitem tentativa manual, respeitando o prazo recebido em respostas 429. Histórico mostra os últimos 30 registros, preservando versões antigas para deduplicação. Não altera contas, saves, fichas, partidas ou regras; não está incluído no backup de campanha.
+
+Validação: **98 testes automatizados passaram**, incluindo permissões das quatro rotas, validação, menções, confirmação, prévia, concorrência, persistência, reinício, rate limit, timeout, registro corrompido e falha de gravação após envio. Edge local com o servidor real e usuários sintéticos: painel de administração, prévia sem envio, invalidar prévia editada, envio simulado, duplicata bloqueada, timeout, desktop e mobile (390px), sem erros JavaScript ou transbordamento horizontal. Captura mobile revisada. Saída para Discord simulada; nenhuma mensagem real enviada. PostgreSQL real, Supabase e alwaysdata não testados. Nenhuma dependência adicionada.
+
+Atualize GitHub, rode git pull --ff-only e npm ci --omit=dev em /home/grupao/grupao, configure as variáveis conforme DISCORD.md, reinicie e use Ctrl+F5. Preserve DATABASE_URL e dados atuais.
+
+
+## Versão 4.8.14 — Participantes online no save
+
+Abra um save e toque em **Participantes**, no canto inferior direito. A lista continua disponível no campo e em tela cheia. Mostra contas participantes (não NPCs): **No save**, **No campo**, **Conexão perdida** e **Fora do save**. Campo aberto inclui a tela de preparação, mesmo sem uma partida iniciada. Abas em segundo plano continuam contando como conectadas; não é um indicador de atenção à tela.
+
+Usa a conexão Socket.IO existente, com eventos pequenos de presença e sem consultas periódicas novas. Cada entrada ou mudança de contexto valida a sessão e a participação no servidor; no PostgreSQL a consulta retorna apenas um booleano, sem carregar fichas, fotos ou histórico. Não altera dados, partidas ou regras. Nenhuma dependência nova.
+
+Várias abas da mesma conta aparecem uma única vez; se qualquer aba estiver no campo, prevalece No campo. Ao sair voluntariamente, deixa de contar naquela aba. Queda de conexão só é detectada após o transporte reconhecer a falha; a indicação Conexão perdida permanece por até dois minutos, se não houver outra aba conectada, e depois passa a Fora do save. Reconexão restaura a presença. Quando a conexão do próprio usuário falha, a lista informa que o estado dos demais está indisponível.
+
+Presença existe apenas na memória do processo, sem gravações no banco, sem histórico permanente e sem crescimento dos backups. Reinícios limpam a lista; clientes reconectados entram novamente. Destinado à configuração atual de uma instância Node.js; múltiplos processos exigiriam um serviço compartilhado de presença. O tráfego de Socket.IO não é zero e o consumo real na hospedagem não foi medido.
+
+Validação: **91 testes automatizados passaram**, incluindo abas simultâneas, permissões, payloads inválidos, saída durante autorização, desconexão, expiração, reconexão e limitação de eventos. Edge local com dois clientes e Socket.IO real: atualização entre usuários, campo, desconexão/reconexão, múltiplas abas, saída e largura de 390 pixels. Campo e presença também verificados em tela cheia nativa e alternativa, em 1366×768, 390×844 e 844×390, incluindo ficha rápida e dados no histórico. Cenários usam dados sintéticos; não testado com PostgreSQL real, Supabase, alwaysdata ou aparelho físico.
+
+Publicação: atualize os arquivos no GitHub, rode `git pull --ff-only` e `npm ci --omit=dev` em `/home/grupao/grupao`, reinicie o site no painel e use Ctrl+F5 nos navegadores. Preserve DATABASE_URL e dados existentes. Não é necessário recriar saves.
+
+
 ## Versão 4.8.13 — Campo centralizado em tela cheia
 
 Controles de ficha, dados, régua e navegação compactados no topo. A área restante da tela é reservada ao campo, centralizado horizontal e verticalmente, preservando a proporção 105:68 e margens para tokens. O cálculo usa o tamanho real da área disponível, substituindo descontos fixos de altura. Coordenadas de zoom/pinça ajustadas à nova origem centralizada. Em telas estreitas, controles se distribuem em mais linhas. Enquadrar campo restaura a visão inteira; zoom permite aproximar.
