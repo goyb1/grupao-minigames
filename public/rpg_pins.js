@@ -24,7 +24,7 @@
   const hold=createHold({fire:async data=>{
    hideRing();if(!available())return;
    suppress=true;clearTimeout(suppressTimer);
-   const payload=data.pinId?{op:'pin',action:'remove',pinId:data.pinId}:{op:'pin',action:'add',pinId:crypto.randomUUID(),to:data.to};
+   const payload=data.pinId?{op:'pin',action:'remove',pinId:data.pinId}:{op:'pin',action:'add',pinId:window.GrupaoId.uuid(),to:data.to};
    try{const ok=await send(payload);if(!destroyed)status.textContent=ok===false?' Não foi possível marcar. Tente novamente.':data.pinId?' Marcação removida.':' Local marcado.';}catch(e){if(!destroyed)status.textContent=' '+(e.message||'Não foi possível salvar a marcação.');}
   }});
   function down(e){
