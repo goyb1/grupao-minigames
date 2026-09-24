@@ -1,5 +1,16 @@
 # Grupão Minigames
 
+## Versão 4.8.12 — Correção de inicialização e dados em HTTP
+
+Corrigido o uso direto de crypto.randomUUID no navegador, que não está disponível em contextos HTTP não seguros. A falha interrompia a montagem da tela ao preparar os botões de times salvos, deixando tokens sem posição e a interface sem atualizações. Também impedia criar identificadores de rolagens. A nova função mantém randomUUID onde disponível e usa getRandomValues para gerar UUID v4 nos demais casos, sem recorrer a Math.random.
+
+Aplicado também a NPCs, marcações, importação de fichas e restauração de campanhas. Scripts do RPG têm identificador de versão na URL para evitar mistura com arquivos antigos no cache. Não altera banco, saves, regras, servidor nem frequência de sincronização. Não é necessário recriar partidas. Recomenda-se acessar o site por HTTPS para proteger login e conexão; esta correção não cifra HTTP.
+
+Validação: 87 testes automatizados passaram. Reprodução em navegador Edge local: antes, retirar randomUUID causava TypeError em saveCurrentTeams, reproduzindo os sintomas do vídeo; depois, conferidos 14 tokens posicionados, início da partida, dados independentes pela lateral/painel/tela cheia, atualização do histórico, painel em largura de 390 pixels e reabertura. Teste com estado sintético e motor real da partida, sem contas ou dados de produção. PostgreSQL real, Supabase e alwaysdata não foram testados.
+
+Atualize GitHub, rode `git pull --ff-only` e `npm ci --omit=dev` em /home/grupao/grupao, reinicie pelo painel e recarregue com Ctrl+F5. Preserve DATABASE_URL existente.
+
+
 ## Versão 4.8.11 — Ficha rápida e dados dentro do campo
 
 Em **BlueLocker → abrir save → Abrir partida**, use **Ficha rápida** ou **Dados no campo**, acima do campo. Os dois controles continuam visíveis em tela cheia.
