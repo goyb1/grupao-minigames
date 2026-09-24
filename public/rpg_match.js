@@ -1,7 +1,7 @@
 'use strict';
 (() => {
  const root=document.createElement('section');root.id='matchView';root.className='view';document.querySelector('main').append(root);views.push('match');
- const css=document.createElement('link');css.rel='stylesheet';css.href='/rpg_match.css';document.head.append(css);
+ const css=document.createElement('link');css.rel='stylesheet';css.href='/rpg_match.css?v=4.8.13';document.head.append(css);
  let ruler=null,pins=null,zoom=null,quick=null;
  let campaign,match,back,selected='',destination=null,pollTimer,clockTimer,session=0,requestBusy=false,pollBusy=false,pendingKey='',receivedAt=0,paintedId='',preparing=false,stateGeneration=0;
  const $m=id=>document.getElementById('match'+id),key=()=>String(user.nick).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ').trim(),isMaster=()=>campaign.owner===key();
