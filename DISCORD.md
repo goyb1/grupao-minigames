@@ -1,6 +1,6 @@
 # Conectar as atualizações do Grupão ao Discord
 
-Esta integração publica anúncios manuais. O bot com comandos será uma etapa separada.
+Esta integração publica anúncios manuais. Para o bot com comandos adicionado na v4.8.17, siga DISCORD_BOT.md. O webhook existente continua funcionando.
 
 ## 1. Criar o webhook
 

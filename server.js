@@ -29,8 +29,12 @@ const whoGame = createWhoGame({ rooms, broadcast, finish, shuffle, stopTimer });
 
 const rpg = require('./rpg').createRpg({app,express,db,auth,normalize,dataDir:path.dirname(DATA_FILE)});
 require('./rpg_presence').attachPresence(io,{authorize:rpg.presenceAccess,identity:s=>fromToken(s.handshake.auth?.token),normalize});
+const discordStore=require('./discord_updates').createStore({db,dataDir:path.dirname(DATA_FILE)});
+const discordModule=require('./discord_bot');
+const discordBot=discordModule.mountInteractions({app,express,readers:discordModule.createReaders({db,getUsers:()=>users,updates:discordStore})});
 app.use(express.json({ limit: '30kb' }));
-require('./discord_updates').mountUpdates({app,auth,admin,db,dataDir:path.dirname(DATA_FILE)});
+require('./discord_updates').mountUpdates({app,auth,admin,db,dataDir:path.dirname(DATA_FILE),store:discordStore});
+discordModule.mountBotAdmin({app,auth,admin,bot:discordBot});
 app.use(express.static(path.join(__dirname, 'public')));
 
 function localLoad() { try { return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8')); } catch { return {}; } }

@@ -1,5 +1,20 @@
 # Grupão Minigames
 
+## Versão 4.8.17 — Bot do Discord integrado ao site
+
+A atualização anterior foi anunciada como 4.8.16; a numeração desta entrega segue com 4.8.17. Não é necessário alterar o histórico de anúncios.
+
+Novos comandos: **/site**, **/novidades** (último anúncio confirmado) e **/ranking**, com top 10 de Futebol, Clash Royale ou Quiz gamer. Usa os recordes já existentes, com desempate por vitórias e exclusão de contas suspensas. Respostas ficam no canal; não inclui dados de fichas/campanhas/senhas. No site, **Administração → Bot do Discord** mostra configuração, endereço do endpoint, link de instalação, horários de atividade e botão para registrar/atualizar apenas os três comandos. Guia completo: **DISCORD_BOT.md**.
+
+Recebe interações por HTTPS em /api/discord/interactions, antes do parser JSON, valida Ed25519 sobre os bytes originais e timestamp recente, confere aplicação/servidor e limita solicitações. PING assinado responde para validação do portal. Site responde imediatamente; novidades/ranking confirmam antes da consulta e editam a resposta original depois. Falhas de banco são genéricas, sem segredos; falhas de entrega aparecem no painel. Não usa Gateway ou processo adicional; bot pode aparecer offline no Discord. Comandos dependem da disponibilidade/tempo de inicialização da hospedagem.
+
+Sem tabelas novas, dependências adicionais, histórico permanente de comandos ou consultas periódicas. Cache de 15 segundos para até quatro consultas, agrupamento de solicitações simultâneas, deduplicação temporária de interações e limites por usuário/servidor. O registro usa o token somente quando o administrador clica; atualiza os comandos por nome sem apagar outros. Token, chave e IDs são configurados no ambiente. O webhook anterior continua independente. Preserva dados existentes e a lógica do RPG/minigames. Consumo real da hospedagem não medido.
+
+Validação: **108 testes automatizados passaram**. Inclui assinatura válida/inválida, corpo alterado, timestamp expirado, PING, restrição a aplicação/servidor, confirmação antes do banco, resposta posterior, deduplicação, cache, timeout, rankings, último anúncio além das últimas 30 falhas, permissões administrativas e registro dos comandos sem sobrescrever a lista inteira. Edge local com servidor real e contas sintéticas: painel, registro simulado, comandos assinados, webhook anterior, desktop e mobile 390px; sem erros JavaScript ou transbordamento horizontal. Captura mobile revisada. API externa simulada; instalação real no Discord, PostgreSQL/Supabase e alwaysdata ainda não testados.
+
+Atualize os arquivos do GitHub, rode git pull --ff-only e npm ci --omit=dev, configure as quatro variáveis DISCORD_APPLICATION_ID, DISCORD_PUBLIC_KEY, DISCORD_GUILD_ID e DISCORD_BOT_TOKEN conforme o guia, preserve variáveis anteriores e reinicie. Use Ctrl+F5. Não é necessário recriar fichas, partidas ou saves.
+
+
 ## Versão 4.8.15 — Anúncios de atualizações no Discord
 
 Em **Administração → Atualizações no Discord**, goyb pode preencher versão, título, novidades e correções, revisar uma prévia e publicar no canal configurado. Prévia não envia; editar o conteúdo invalida a prévia. A integração usa webhook, sem bot adicional ou consultas periódicas. Configuração e passo a passo: **DISCORD.md**.
