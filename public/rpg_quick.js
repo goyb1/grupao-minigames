@@ -1,0 +1,21 @@
+'use strict';
+(()=>{
+ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ function sheetMarkup(player,sheet,canRoll){
+  if(!player)return '<p>Selecione um personagem no campo.</p>';
+  return `<h3>${esc(player.name)}</h3><p>${esc(player.position)} • ${esc(player.style)}</p><p>Modificadores usados nesta partida. O estilo já está incluído.</p><div class="match-quick-attrs">${Object.entries(player.mods).map(([a,v])=>`<button type="button" class="btn ghost" data-quick-attr="${esc(a)}" ${canRoll?'':'disabled'}>${esc(a)} <b>${v>=0?'+':''}${esc(v)}</b></button>`).join('')}</div><p>${canRoll?'Toque em um atributo para preparar uma rolagem; confira os dados antes de enviar.':'Você pode consultar este personagem, mas não rolar por ele.'}</p>${sheet?`<details><summary>Ficha carregada ao abrir o campo</summary><p>Nível ${esc(sheet.level)} • Ego: ${esc(sheet.ego)}</p><p>Informações de referência: edições posteriores da ficha não alteram os modificadores desta partida.</p>${[['Talentos',sheet.talents],['Arma',sheet.weapon],['Observações',sheet.notes]].map(([title,value])=>`<h4>${title}</h4><p class="rpg-notes">${esc(value||'Não preenchido')}</p>`).join('')}</details>`:''}`;
+ }
+ function mount({host,diceBox,getPlayer,getSheet,canRoll,prepareRoll,getRolls}){
+  const doc=host.ownerDocument,home=diceBox.parentElement,placeholder=doc.createComment('dados');home.insertBefore(placeholder,diceBox);
+  const tools=doc.createElement('div');tools.className='match-quick-tools';tools.innerHTML='<button type="button" class="btn secondary" data-sheet aria-expanded="false">FICHA RÁPIDA</button><button type="button" class="btn secondary" data-dice aria-expanded="false">DADOS NO CAMPO</button>';host.querySelector('.match-pitch-scroll').before(tools);
+  const panel=doc.createElement('section');panel.className='match-quick-panel';panel.hidden=true;panel.setAttribute('aria-label','Ficha e dados no campo');panel.innerHTML='<button type="button" class="btn ghost" data-close>FECHAR PAINEL</button><div data-sheet-content></div><div data-dice-content></div><div data-results aria-live="polite"></div>';host.append(panel);
+  const sheet=panel.querySelector('[data-sheet-content]'),dice=panel.querySelector('[data-dice-content]'),results=panel.querySelector('[data-results]'),close=panel.querySelector('[data-close]');let mode='',trigger=null,sheetKey='',rollKey='';
+  function restoreDice(){placeholder.after(diceBox);}
+  function hide(){restoreDice();mode='';panel.hidden=true;tools.querySelectorAll('button').forEach(b=>b.setAttribute('aria-expanded','false'));trigger?.focus({preventScroll:true});}
+  function refresh(){if(!mode)return;const p=getPlayer(),s=getSheet(),allowed=!!p&&canRoll(p);if(mode==='sheet'){const key=JSON.stringify([p?.id,p?.name,p?.position,p?.style,p?.mods,s&&[s.level,s.ego,s.talents,s.weapon,s.notes],allowed]);if(key!==sheetKey){sheetKey=key;sheet.innerHTML=sheetMarkup(p,s,allowed);sheet.querySelectorAll('[data-quick-attr]').forEach(b=>b.onclick=()=>{prepareRoll(p.id,b.dataset.quickAttr);open('dice');});}}const logs=getRolls().filter(l=>l.roll).slice(-5),key=JSON.stringify(logs);if(key!==rollKey){rollKey=key;results.innerHTML='<h4>Últimas rolagens</h4>'+ (logs.map(l=>`<p>${esc(l.message)}</p>`).join('')||'<p>Nenhuma rolagem registrada.</p>');}}
+  function open(next){mode=next;panel.hidden=false;sheet.hidden=mode!=='sheet';dice.hidden=mode!=='dice';if(mode==='dice')dice.append(diceBox);else restoreDice();tools.querySelector('[data-sheet]').setAttribute('aria-expanded',String(mode==='sheet'));tools.querySelector('[data-dice]').setAttribute('aria-expanded',String(mode==='dice'));refresh();close.focus({preventScroll:true});}
+  for(const type of ['sheet','dice'])tools.querySelector('[data-'+type+']').onclick=e=>{trigger=e.currentTarget;if(mode===type)hide();else open(type);};close.onclick=hide;panel.onkeydown=e=>{if(e.key==='Escape'){e.stopPropagation();hide();}};
+  return {refresh,destroy(){restoreDice();placeholder.remove();tools.remove();panel.remove();}};
+ }
+ const api={sheetMarkup,mount};if(typeof module!=='undefined')module.exports=api;if(typeof window!=='undefined')window.GrupaoQuick=api;
+})();
