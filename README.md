@@ -1,5 +1,20 @@
 # Grupão Minigames
 
+## Versão 4.8.11 — Ficha rápida e dados dentro do campo
+
+Em **BlueLocker → abrir save → Abrir partida**, use **Ficha rápida** ou **Dados no campo**, acima do campo. Os dois controles continuam visíveis em tela cheia.
+
+- Selecione um token e abra Ficha rápida para consultar posição, estilo e modificadores usados na partida. Talentos, arma, Ego, nível e observações da ficha carregada ficam em uma seção expansível; alterações posteriores nas fichas não atualizam os modificadores copiados na partida.
+- Toque em um atributo de um personagem que você controla para preparar 1d20 com seu modificador. Isso apenas preenche o formulário: confira e clique em Rolar/registrar dados para enviar. Ajustes e dados externos anteriores são limpos ao preparar por atributo, evitando reaproveitá-los por engano.
+- Jogadores consultam os demais personagens, mas rolam apenas pelos próprios; mestre controla todos. Dados externos continuam exclusivos do mestre e permissões são validadas no servidor existente.
+- O formulário de dados existente é movido temporariamente para o painel, não duplicado. Fechar devolve o formulário à lateral com os valores preservados. O painel mostra as cinco últimas rolagens já disponíveis no histórico. Resultados não resolvem ações nem alteram posse, placar ou movimento.
+- Nenhuma consulta periódica, dependência ou armazenamento adicional para a ficha rápida. Usa dados já carregados e preserva sincronização econômica da 4.8.10. Rolagens continuam usando os comandos e o histórico limitado existentes. Abrir e fechar o painel não grava no banco.
+
+Validação: **85 testes automatizados passaram**, incluindo modificadores da partida independentes da ficha, consulta sem controle e escape de conteúdo; testes existentes de dados, permissões e sincronização continuam passando. Sintaxe verificada. Interface, tela cheia e gestos não foram validados no navegador/aparelho físico; PostgreSQL real, Supabase e alwaysdata não foram testados. Impacto de CPU/rede em produção não medido.
+
+Para publicar: atualize os arquivos do GitHub; no SSH da hospedagem execute `cd /home/grupao/grupao`, `git pull --ff-only` e `npm ci --omit=dev`. Reinicie pelo painel e recarregue a página nos dispositivos. Preserve DATABASE_URL e banco atuais.
+
+
 ## Versão 4.8.10 — Sincronização econômica do campo
 
 - A consulta envia um identificador do estado recebido. Se nada mudou, a resposta contém apenas confirmação e identificador, sem reenviar jogadores, marcações e histórico. Clientes antigos continuam recebendo respostas completas.
