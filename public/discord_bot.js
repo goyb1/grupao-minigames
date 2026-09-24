@@ -1,0 +1,16 @@
+'use strict';
+window.mountDiscordBot=async function(parent){
+ const card=document.createElement('section');card.className='card data-card discord-updates';parent.prepend(card);
+ card.innerHTML='<h2>🤖 Bot do Discord</h2><p>/site · /novidades · /ranking</p><p>Os comandos funcionam no servidor configurado e respondem no canal. O bot pode aparecer offline, pois recebe comandos pelo site.</p><p data-bot-status role="status">Carregando…</p><div data-bot-info></div><button class="btn secondary" type="button" data-bot-register disabled>REGISTRAR / ATUALIZAR COMANDOS</button> <button class="btn ghost" type="button" data-bot-refresh>ATUALIZAR STATUS</button>';
+ const status=card.querySelector('[data-bot-status]'),infoBox=card.querySelector('[data-bot-info]'),button=card.querySelector('[data-bot-register]');let busy=false;
+ async function load(){const info=await api('/api/admin/discord-bot');if(!card.isConnected)return;infoBox.replaceChildren();const names={applicationId:'DISCORD_APPLICATION_ID',guildId:'DISCORD_GUILD_ID',publicKey:'DISCORD_PUBLIC_KEY',botToken:'DISCORD_BOT_TOKEN',site:'PUBLIC_SITE_URL'};for(const [key,ok] of Object.entries(info.checks)){const p=document.createElement('p');p.textContent=(ok?'✓ ':'⚠ ')+names[key]+(ok?' — configurado':' — ausente ou inválido');infoBox.append(p);}
+  if(info.endpoint){const label=document.createElement('label');label.textContent='Interactions Endpoint URL (copie para o portal do Discord)';const input=document.createElement('input');input.readOnly=true;input.value=info.endpoint;input.onclick=()=>input.select();label.append(input);infoBox.append(label);}
+  if(info.installUrl){const link=document.createElement('a');link.className='btn ghost';link.textContent='ADICIONAR BOT AO SERVIDOR';link.href=info.installUrl;link.target='_blank';link.rel='noopener noreferrer';infoBox.append(link);}
+  for(const [key,title] of [['lastRegisteredAt','Último registro nesta execução'],['lastInteractionAt','Último comando recebido'],['lastResponseAt','Última resposta concluída']]){const p=document.createElement('p');p.textContent=title+': '+(info[key]?new Date(info[key]).toLocaleString('pt-BR'):'ainda não registrado nesta execução');infoBox.append(p);}
+  if(info.lastDeliveryError){const p=document.createElement('p');p.textContent=info.lastDeliveryError;infoBox.append(p);}
+  button.disabled=busy||!info.canRegister;status.textContent=info.configured?'Configuração local pronta. Instale o bot, salve o endpoint no portal e registre os comandos.':'Configure as variáveis na hospedagem e reinicie. O passo a passo está em DISCORD_BOT.md no ZIP.';
+ }
+ button.onclick=async()=>{if(busy)return;busy=true;button.disabled=true;status.textContent='Registrando os três comandos no Discord…';try{const result=await api('/api/admin/discord-bot/register',{method:'POST',body:JSON.stringify({confirm:true})});await load();status.textContent='Comandos registrados: '+result.commands.map(n=>'/'+n).join(', ')+'. Teste no seu servidor.';}catch(e){status.textContent=e.message;}finally{busy=false;button.disabled=false;}};
+ card.querySelector('[data-bot-refresh]').onclick=()=>{if(!busy)load().catch(e=>status.textContent=e.message);};
+ try{await load();}catch(e){status.textContent=e.message;}
+};
