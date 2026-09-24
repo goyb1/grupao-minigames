@@ -1,5 +1,16 @@
 # Grupão Minigames
 
+## Versão 4.8.13 — Campo centralizado em tela cheia
+
+Controles de ficha, dados, régua e navegação compactados no topo. A área restante da tela é reservada ao campo, centralizado horizontal e verticalmente, preservando a proporção 105:68 e margens para tokens. O cálculo usa o tamanho real da área disponível, substituindo descontos fixos de altura. Coordenadas de zoom/pinça ajustadas à nova origem centralizada. Em telas estreitas, controles se distribuem em mais linhas. Enquadrar campo restaura a visão inteira; zoom permite aproximar.
+
+Arquivos JS e CSS atualizados têm identificadores de versão para evitar cache antigo. Sem mudanças no servidor, banco, posições salvas ou sincronização.
+
+Validação: 87 testes automatizados passaram. Verificação adicional em Edge local com cenários 1366×768, 390×844 e 844×390, modo nativo e alternativa sem API de tela cheia: campo centralizado, proporção correta, tamanho máximo dentro das margens, painéis de ficha/dados, registro no histórico e saída. Captura visual revisada em desktop (campo de aproximadamente 940×609). Não testado em aparelho físico, Supabase ou alwaysdata.
+
+Atualize o GitHub, rode `git pull --ff-only` e `npm ci --omit=dev` em /home/grupao/grupao, reinicie no painel e atualize a página com Ctrl+F5. Nenhuma mudança na DATABASE_URL.
+
+
 ## Versão 4.8.12 — Correção de inicialização e dados em HTTP
 
 Corrigido o uso direto de crypto.randomUUID no navegador, que não está disponível em contextos HTTP não seguros. A falha interrompia a montagem da tela ao preparar os botões de times salvos, deixando tokens sem posição e a interface sem atualizações. Também impedia criar identificadores de rolagens. A nova função mantém randomUUID onde disponível e usa getRandomValues para gerar UUID v4 nos demais casos, sem recorrer a Math.random.
