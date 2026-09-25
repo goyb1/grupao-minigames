@@ -1,5 +1,20 @@
 # Grupão Minigames
 
+## Versão 4.8.18 — Lixeira de fichas do RPG
+
+Dentro do save, o mestre encontra **Lixeira de fichas** junto ao código da campanha. O antigo Excluir ficha agora é **Mover para a lixeira**. A lixeira guarda até **10 itens e 16 MB por save**, sem expiração ou limpeza automática. Ao atingir o limite, outra exclusão é recusada sem alterar a ficha; libere espaço usando Excluir definitivamente em um item escolhido.
+
+Restaurar recupera ficha, foto, atributos, evolução, aprovação e dados iniciais para o participante ou NPC original. A conta do participante permanece no save. Não substitui ficha nova ou dados iniciais existentes, não restaura sobre uma identidade em uso na partida e respeita as 30 vagas de NPCs. Fichas escaladas na partida atual continuam protegidas contra exclusão. Times salvos que dependiam da ficha continuam sendo removidos ao excluí-la; restaurar a ficha não recria esses times. Fichas excluídas antes desta versão não são recuperáveis pela lixeira.
+
+Lista e operações exclusivas do mestre. A listagem mostra apenas metadados, sem fotos/conteúdo das fichas. O conteúdo completo da lixeira não é incluído nas respostas normais da campanha, nem para o mestre; só permanece no armazenamento e no backup. Alterações usam as transações/fila de gravação existentes. Restauração concorrente ou repetida não duplica a ficha; lista desatualizada retorna conflito. Excluir definitivamente exige confirmação explícita.
+
+Backups de campanha agora incluem a lixeira validada e mostram sua quantidade na prévia. Backups antigos continuam aceitos com lixeira vazia. Para preservar os itens em backups novos, restaure usando esta versão ou posterior. Nenhuma tabela nova, dependência adicional, consulta periódica ou mudança no motor da partida. Há armazenamento adicional limitado por save; o consumo total depende de quantas campanhas e fotos forem mantidas. Preserva os dados existentes, o bot e o webhook.
+
+Validação: **113 testes passaram**, incluindo exclusão protegida, acesso, concorrência, limite de itens/bytes, restauração sem sobrescrever dados, capacidade de NPCs, gravação/reinício e backup. Edge local com servidor real e conta sintética: mover ficha para lixeira, listar, restaurar, reabrir ficha com dados preservados, excluir definitivamente, desktop e mobile de 390px; sem erros JavaScript ou transbordamento horizontal. Captura mobile revisada. PostgreSQL real, Supabase e alwaysdata não foram testados.
+
+Atualize GitHub, execute git pull --ff-only e npm ci --omit=dev em /home/grupao/grupao, reinicie o site e use Ctrl+F5. Mantenha todas as variáveis existentes. Não é necessário recriar saves ou registrar os comandos do bot novamente.
+
+
 ## Versão 4.8.17 — Bot do Discord integrado ao site
 
 A atualização anterior foi anunciada como 4.8.16; a numeração desta entrega segue com 4.8.17. Não é necessário alterar o histórico de anúncios.

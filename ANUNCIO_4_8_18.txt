@@ -1,0 +1,16 @@
+Versão: 4.8.18
+
+Título: 🗑️ Agora o RPG tem uma lixeira de fichas!
+
+Novidades:
+• O mestre pode recuperar fichas excluídas por engano.
+• A restauração preserva foto, atributos, evolução e aprovação.
+• Acesse “Lixeira de fichas” dentro do save.
+• Até 10 fichas por lixeira, sem exclusão automática.
+• A lixeira também faz parte dos backups da campanha.
+
+Correções:
+(deixe vazio)
+
+Observações para incluir se desejar:
+A restauração não substitui fichas novas nem recupera times salvos excluídos. Fichas apagadas antes desta atualização não aparecem na lixeira.
