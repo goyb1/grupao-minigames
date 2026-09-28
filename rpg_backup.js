@@ -52,10 +52,12 @@ function createBackupTools({validateSheet,normalize,attributes,styles}){
   result.match=game(v.match,entries);
   for(const m of [result.match,result.match?.undo])if(m)for(const p of Object.values(m.players))p.controller=p.id.startsWith('npc:')?owner:p.id;
   result.matchHistory=list(v.matchHistory||[],20).map(h=>{object(h);const teams=list(h.teams,2).map(team),score=list(h.score,2).map(n=>integer(n));if(teams.length!==2||score.length!==2)fail('Resumo de partida inválido.');return {teams,score,date:text(h.date,80),players:list(h.players,14).map(p=>({name:text(p.name,60),goals:integer(p.goals),assists:integer(p.assists),saves:integer(p.saves)}))};});
+  result.career=require('./rpg_career').validate(v.career,result,validateSheet,game);
   return result;
  }
  function pack(source,owner){
   const c=campaign(source,owner),now=Date.now();if(c.match){matchGame.clock(c.match,now);c.match.elapsed=Math.min(matchGame.HALF,c.match.elapsed);c.match.running=false;if(c.match.status==='playing')c.match.status='paused';c.match.anchor=now;}
+  if(c.career?.match){matchGame.clock(c.career.match,now);c.career.match.running=false;if(c.career.match.status==='playing')c.career.match.status='paused';c.career.match.anchor=now;}
   return {format:FORMAT,version:VERSION,exportedAt:new Date(now).toISOString(),campaign:c,checksum:hash(c)};
  }
  function parse(file,owner){
@@ -63,11 +65,12 @@ function createBackupTools({validateSheet,normalize,attributes,styles}){
   if(typeof file.checksum!=='string'||hash(file.campaign)!==file.checksum)fail('O backup está incompleto ou foi alterado. Exporte uma nova cópia.');
   text(file.exportedAt,80);if(!Number.isFinite(Date.parse(file.exportedAt)))fail('Data do backup inválida.');return {campaign:campaign(file.campaign,owner),exportedAt:file.exportedAt,checksum:file.checksum};
  }
- function summary(parsed){const c=parsed.campaign,all=[...Object.values(c.members),...Object.values(c.extras)];return {name:c.name,exportedAt:parsed.exportedAt,checksum:parsed.checksum,trash:c.sheetTrash.length,participants:Object.keys(c.members).length,npcs:Object.keys(c.extras).length,sheets:all.filter(m=>m.sheet).length,photos:all.filter(m=>m.sheet?.photo).length,teams:Object.keys(c.savedTeams).length,history:c.matchHistory.length,hasMatch:!!c.match,score:c.match?.score||null,pins:c.match?.pins.length||0};}
+ function summary(parsed){const c=parsed.campaign,all=[...Object.values(c.members),...Object.values(c.extras)];return {careerYear:c.career?.year||null,careerTeams:Object.keys(c.career?.teams||{}).length,name:c.name,exportedAt:parsed.exportedAt,checksum:parsed.checksum,trash:c.sheetTrash.length,participants:Object.keys(c.members).length,npcs:Object.keys(c.extras).length,sheets:all.filter(m=>m.sheet).length,photos:all.filter(m=>m.sheet?.photo).length,teams:Object.keys(c.savedTeams).length,history:c.matchHistory.length,hasMatch:!!c.match,score:c.match?.score||null,pins:c.match?.pins.length||0};}
  function restore(parsed,owner,name,requestId){
   if(typeof requestId!=='string'||! /^[a-zA-Z0-9-]{16,80}$/.test(requestId))fail('Identificador de restauração inválido.');
   const requestHash=hash({owner,requestId}),c=structuredClone(parsed.campaign);c.id=crypto.createHash('sha256').update('grupao-restore:'+requestHash).digest('hex').slice(0,16).toUpperCase();c.name=text(name,80).trim();c.updatedAt=new Date().toISOString();c.restoreInfo={requestHash,checksum:parsed.checksum,originalId:parsed.campaign.id};
   if(c.match){c.match.id=crypto.randomUUID();c.match.rev++;c.match.running=false;c.match.anchor=Date.now();c.match.restarted=true;if(c.match.status==='playing')c.match.status='paused';if(c.match.undo)c.match.undo.id=c.match.id;}
+  if(c.career?.match){c.career.match.id=crypto.randomUUID();c.career.match.rev++;c.career.match.running=false;c.career.match.anchor=Date.now();c.career.match.restarted=true;if(c.career.match.status==='playing')c.career.match.status='paused';if(c.career.match.undo)c.career.match.undo.id=c.career.match.id;}
   return c;
  }
  return {pack,parse,summary,restore};

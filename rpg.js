@@ -1,6 +1,7 @@
 'use strict';
 const crypto = require('crypto');
 const matchGame = require('./rpg_match');
+const careerGame = require('./rpg_career');
 const fs = require('fs');
 const path = require('path');
 const common = ['Carisma','Físico','Frieza','Ritmo','Passe','Finalização','Bola Parada'];
@@ -58,8 +59,8 @@ function createRpg({app,express,db,auth,normalize,dataDir}){
  const matchStore=db?require('./rpg_match_store').createMatchStore(db):null;
  const file=path.join(dataDir,'rpg-campaigns.json');let local={};let queue=Promise.resolve();
  async function init(){
-  if(db){await db.query('CREATE TABLE IF NOT EXISTS rpg_campaigns (id TEXT PRIMARY KEY, data JSONB NOT NULL)');await db.query(`UPDATE rpg_campaigns SET data=jsonb_set(jsonb_set(jsonb_set(data,'{match,status}','"paused"'::jsonb),'{match,running}','false'::jsonb),'{match,restarted}','true'::jsonb) WHERE data->'match'->>'status'='playing'`);}
-  else{try{local=JSON.parse(fs.readFileSync(file,'utf8'));}catch(e){if(e.code!=='ENOENT')throw e;}let changed=false;for(const c of Object.values(local)){if(c.match?.status==='playing'){c.match.status='paused';c.match.running=false;c.match.restarted=true;changed=true;}}if(changed)persist(local);}
+  if(db){await db.query('CREATE TABLE IF NOT EXISTS rpg_campaigns (id TEXT PRIMARY KEY, data JSONB NOT NULL)');await db.query(`UPDATE rpg_campaigns SET data=jsonb_set(jsonb_set(jsonb_set(data,'{match,status}','"paused"'::jsonb),'{match,running}','false'::jsonb),'{match,restarted}','true'::jsonb) WHERE data->'match'->>'status'='playing'`);await db.query(`UPDATE rpg_campaigns SET data=jsonb_set(jsonb_set(jsonb_set(data,'{career,match,status}','"paused"'::jsonb),'{career,match,running}','false'::jsonb),'{career,match,restarted}','true'::jsonb) WHERE data->'career'->'match'->>'status'='playing'`);}
+  else{try{local=JSON.parse(fs.readFileSync(file,'utf8'));}catch(e){if(e.code!=='ENOENT')throw e;}let changed=false;for(const c of Object.values(local)){if(c.match?.status==='playing'){c.match.status='paused';c.match.running=false;c.match.restarted=true;changed=true;}}for(const c of Object.values(local)){if(c.career?.match?.status==='playing'){c.career.match.status='paused';c.career.match.running=false;c.career.match.restarted=true;changed=true;}}if(changed)persist(local);}
  }
  async function read(id){return db?(await db.query('SELECT data FROM rpg_campaigns WHERE id=$1',[id])).rows[0]?.data:structuredClone(local[id]);}
  async function mutate(id,fn){
@@ -69,7 +70,7 @@ function createRpg({app,express,db,auth,normalize,dataDir}){
  function persist(next){fs.mkdirSync(dataDir,{recursive:true});fs.writeFileSync(file+'.tmp',JSON.stringify(next));fs.renameSync(file+'.tmp',file);}
  function key(req){return normalize(req.user.nick);}
  function member(c,k){if(!c||!Object.hasOwn(c.members,k))fail('Você não participa deste save.',403);return c.members[k];}
- function view(c,k){member(c,k);return {...c,sheetTrash:undefined,match:matchGame.publicMatch(c),extras:Object.fromEntries(Object.entries(c.extras||{}).map(([id,m])=>[id,{...m,sheet:currentSheet(m.sheet),rolls:c.owner===k?m.rolls:undefined}])),members:Object.fromEntries(Object.entries(c.members).map(([id,m])=>[id,{...m,sheet:currentSheet(m.sheet),rolls:id===k||c.owner===k?m.rolls:undefined}]))};}
+ function view(c,k){member(c,k);return {...c,career:undefined,sheetTrash:undefined,match:matchGame.publicMatch(c),extras:Object.fromEntries(Object.entries(c.extras||{}).map(([id,m])=>[id,{...m,sheet:currentSheet(m.sheet),rolls:c.owner===k?m.rolls:undefined}])),members:Object.fromEntries(Object.entries(c.members).map(([id,m])=>[id,{...m,sheet:currentSheet(m.sheet),rolls:id===k||c.owner===k?m.rolls:undefined}]))};}
  const trash=require('./rpg_trash');
  const backups=require('./rpg_backup').createBackupTools({validateSheet,normalize,attributes,styles});
  const router=express.Router();router.use(auth);router.use('/backups',express.json({limit:'95mb'}));router.use(express.json({limit:'1500kb'}));
@@ -163,6 +164,31 @@ function createRpg({app,express,db,auth,normalize,dataDir}){
  router.delete('/campaigns/:id/sheets/:who',route(async req=>{const k=key(req),id=req.params.who,b=req.body||{};const c=await mutate(req.params.id,c=>{member(c,k);if(c.owner!==k)fail('Somente o mestre pode excluir fichas.',403);if(b.confirm!==true)fail('Confirme a exclusão da ficha.');const extra=id.startsWith('npc:'),m=(extra?c.extras:c.members)?.[id];if(!m)fail('Ficha não encontrada.',404);if(c.match?.players?.[id])fail('Esta ficha está escalada na partida atual. Prepare outra partida sem ela antes de excluir.',409);if(b.expectedHash!==sheetHash(m))fail('A ficha mudou. Confira novamente antes de excluir.',409);trash.archive(c,id,m);if(extra)delete c.extras[id];else{m.sheet=null;m.rolls=null;delete m.lastSheetImport;}for(const [tid,t] of Object.entries(c.savedTeams||{}))if(t.ids.includes(id))delete c.savedTeams[tid];});return view(c,k);}));
  router.get('/campaigns/:id/trash',route(async req=>{const c=await read(req.params.id),k=key(req);member(c,k);if(c.owner!==k)fail('Somente o mestre pode acessar a lixeira.',403);return {items:trash.list(c),limit:trash.LIMIT};}));
  for(const operation of ['restore','purge'])router.post('/campaigns/:id/trash/:item/'+operation,route(async req=>{const k=key(req),b=req.body||{};const c=await mutate(req.params.id,c=>{member(c,k);if(c.owner!==k)fail('Somente o mestre pode alterar a lixeira.',403);if(b.confirm!==true)fail('Confirme a operação da lixeira.');trash.take(c,req.params.item,b.expectedHash,operation==='restore');});return view(c,k);}));
+ router.get('/campaigns/:id/career',route(async req=>{const c=await read(req.params.id);member(c,key(req));return {...careerGame.view(c),testMode:process.env.TEST_MODE==='1'};}));
+ router.post('/campaigns/:id/career',route(async req=>{const k=key(req);const c=await mutate(req.params.id,c=>{member(c,k);careerGame.command(c,k,req.body||{},{validateSheet,currentSheet,testMode:process.env.TEST_MODE==='1'});});return {...careerGame.view(c),testMode:process.env.TEST_MODE==='1'};}));
+ router.get('/campaigns/:id/career/context',route(async req=>{const c=await read(req.params.id);member(c,key(req));const ctx=careerGame.context(c);return {...ctx,match:matchGame.publicMatch(ctx)};}));
+ router.get('/campaigns/:id/career/match',route(async req=>{
+  const k=key(req),known=req.query.since;
+  let c;
+  if(db&&typeof known==='string'){
+   const fields=['id','rev','status','half','elapsed','anchor','running','restarted'];
+   const projection=fields.map(f=>`'${f}',data->'career'->'match'->'${f}'`).join(',');
+   const r=await db.query(`SELECT jsonb_build_object(${projection},'pending',(data->'career'->'match'->'pending' IS NOT NULL AND data->'career'->'match'->'pending'<>'null'::jsonb)) AS meta, (data->'members' ? $2) AS allowed FROM rpg_campaigns WHERE id=$1`,[req.params.id,k]);
+   if(!r.rows[0])fail('Save não encontrado.',404);if(!r.rows[0].allowed)fail('Você não participa deste save.',403);
+   const sync=require('./rpg_sync').token(r.rows[0].meta);if(known===sync)return {unchanged:true,sync};
+  }
+  if(db){const r=await db.query("SELECT data->'career'->'match' AS match, (data->'members' ? $2) AS allowed FROM rpg_campaigns WHERE id=$1",[req.params.id,k]);if(!r.rows[0])fail('Save não encontrado.',404);if(!r.rows[0].allowed)fail('Você não participa deste save.',403);c={match:r.rows[0].match};}
+  else{c=local[req.params.id];if(!c)fail('Save não encontrado.',404);member(c,k);c={match:c.career?.match};}
+  const sync=require('./rpg_sync').token(c.match);if(known===sync)return {unchanged:true,sync};return {match:matchGame.publicMatch(c),sync};
+ }));
+ router.post('/campaigns/:id/career/match',route(async req=>{
+  const k=key(req),input=req.body||{};
+  const command=ctx=>{member(ctx,k);if(input.op==='create')fail('Abra o confronto na central do campeonato.');if(!ctx.match||!ctx.active)fail('Não há jogo do campeonato aberto.',404);matchGame.command(ctx,k,input,currentSheet);};
+  let result;
+  if(matchStore){const ctx=await matchStore.run(req.params.id,command,'career');result=matchGame.publicMatch(ctx);}
+  else await mutate(req.params.id,c=>{member(c,k);const ctx=careerGame.context(c);ctx.active=c.career.active;command(ctx);c.career.match=ctx.match;result=matchGame.publicMatch(ctx);});
+  return {match:result};
+ }));
  app.use('/api/rpg',router);
  async function presenceAccess(id,nick){
   const k=normalize(nick);

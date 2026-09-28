@@ -1,26 +1,45 @@
 # Grupão Minigames
 
-## v4.8.21 — Correção de desempenho sobre a v4.8.18
+## Versão 4.8.19 — Carreira, nova navegação e desempenho
 
-Este pacote é uma manutenção da versão anterior aos campeonatos. NÃO inclui carreira ou a reformulação visual das versões 4.8.19/20. Use somente se ainda está na versão anterior ao campeonato. A numeração 4.8.21 identifica esta entrega, mas não indica inclusão daqueles recursos.
+Esta é a entrega consolidada para atualizar a v4.8.18: campeonato, interface aprovada e otimizações de partidas. Os pacotes intermediários eram prévias de teste. Use este ZIP completo, identificado como **4.8.19**, e o anúncio ANUNCIO_4_8_19.txt.
 
-No PostgreSQL, ações de partidas existentes passam a consultar apenas proprietário, nicknames dos participantes e partida sob bloqueio da linha. A gravação envia somente partida e data de atualização, preservando fichas, fotos, diário, lixeira e demais campos no banco. A criação da partida continua usando o caminho completo, pois precisa das fichas e do histórico. Ações do mesmo save aguardam antes de adquirir conexão com o banco; saves diferentes têm filas independentes. Mantém transações, revisões e confirmação após COMMIT. O banco ainda precisa atualizar o documento JSONB; esta mudança reduz transferência/processamento no aplicativo, não elimina o custo interno de gravação no PostgreSQL. O armazenamento local mantém o mecanismo anterior.
+### Navegação
 
-No navegador, o histórico só é reconstruído quando seus registros mudam, evitando reconstruções em seleções/atualizações repetidas. A frequência de sincronização permanece igual.
+A campanha tem **Visão geral, Fichas, Amistosos e Carreira**. Fichas e times aparecem em listas compactas. Convite, diário, importação e recuperação ficam em seções recolhidas. O backup do save está em **Visão geral → Convidar participantes e opções do save**. O painel de participantes fica no rodapé das telas de organização e mantém o comportamento anterior dentro do campo.
 
-Validação: 116 testes aprovados, incluindo 12 ações concorrentes com substituto de banco, preservação de dados não relacionados, rollback, liberação de conexões e filas independentes. Teste Edge local do campo com 14 jogadores, iniciar partida, dados na lateral/painel/tela cheia e histórico. Não foi realizado teste de carga na alwaysdata nem execução das consultas em Supabase/PostgreSQL real; não há estimativa de ganho de latência em produção. Uma medição com três usuários na hospedagem ainda é necessária.
+A carreira tem **Resumo, Jogos, Classificação, Times e Troféus**. O resumo destaca o próximo confronto ou o campo já aberto e mostra sua posição nas duas competições. Jogos reúne rodada e calendário; Classificação reúne as tabelas. Times permite editar um jogador por vez. A nova navegação pede confirmação antes de descartar alterações digitadas nos formulários. Os outros minigames mantêm suas telas.
 
-Antes de atualizar: exporte os backups das campanhas importantes e guarde o ZIP da versão atual. Substitua os arquivos no GitHub, execute os comandos abaixo na hospedagem e reinicie o site. Preserve todas as variáveis de ambiente.
+### Carreira
 
-```sh
-cd /home/grupao/grupao
-git pull --ff-only
-npm ci --omit=dev
-```
+Começa em **2026**. Crie elencos próprios de sete jogadores, gere NPCs ou copie times salvos da campanha. O mestre atribui controle aos participantes. Essas fichas são cópias sem fotos e não ocupam as 30 vagas de NPCs da campanha. Elencos ficam bloqueados durante a temporada e podem ser editados na preparação do ano seguinte.
 
-Após reiniciar, todos devem usar Ctrl+F5. Teste o mesmo save primeiro sozinho e depois com três pessoas: mover peças, rolar dados e abrir outra página. Se continuar lento, observe CPU/RAM da hospedagem durante a sessão. Não envie DATABASE_URL, senhas ou tokens em capturas. O pacote não altera dados de produção automaticamente e não requer tabelas novas. Para voltar o código, use o ZIP anterior e reinicie; restaurar dados exige backup separado.
+Inscreva seu time nas duas competições:
 
+- **Liga:** 2 a 32 times, turno único ou ida e volta. Vitória vale 3 pontos, empate 1. Desempate: saldo, gols marcados, vitórias e ordem do sorteio inicial.
+- **Champions:** 8, 16 ou 32 times; grupos de quatro, ida e volta, dois classificados. Primeira eliminatória cruza vencedor de grupo e segundo de outro. Mata-mata em ida e volta, final única, sem gol fora. No empate agregado, informe quem venceu o desempate.
 
+São as regras desta adaptação digital, disponíveis em Como funciona. O mestre joga os confrontos do time acompanhado ou registra placar manual sem abrir o campo. Se abrir o campo, deve encerrá-lo e confirmar seu placar atual antes de atualizar a classificação. A rodada aguarda todos os resultados. Outros jogos são simulados uma única vez por confirmação, com chances iguais e placares de 0 a 4 por equipe, sem usar atributos. Se o time acompanhado for eliminado da Champions, o restante dessa competição é simulado até definir o campeão. Uma derrota isolada não elimina automaticamente.
+
+Ao concluir Liga e Champions, o ano avança e preserva os times para nova preparação. A Sala de troféus mostra títulos anuais/acumulados, campeões, classificação final da liga e fase alcançada pelo time acompanhado na Champions, inclusive em temporadas sem títulos. Nomes históricos são preservados. Times com histórico não podem ser apagados, mas podem ficar fora de inscrições futuras. A passagem de ano não envelhece personagens nem concede evolução automaticamente: as regras das fichas permanecem.
+
+Limites por carreira: 32 times, 100 temporadas e 3 MiB. O histórico anual é resumido; não acumula todos os campos antigos. Nenhuma simulação roda em segundo plano.
+
+### Otimizações dos dois campos
+
+No PostgreSQL, movimentos, dados e demais ações de uma partida existente consultam apenas a partida, proprietário e nicknames dos participantes. A gravação envia apenas a partida e o horário de atualização; fichas, fotos, lixeira, calendário, títulos e outros campos são preservados no banco. Amistoso e carreira usam caminhos separados no mesmo save. As ações dos dois campos compartilham uma fila por save antes de adquirir conexão, evitando ocupar várias conexões esperando a mesma linha. Saves diferentes têm filas independentes. Transações, controle de personagens, revisões e confirmação após COMMIT continuam ativos.
+
+Criar partidas, organizar campeonatos e confirmar seus resultados continuam usando a transação completa, pois precisam das fichas/calendário. O banco ainda atualiza o documento JSONB internamente; esta otimização reduz transferência e processamento no aplicativo, sem eliminar o custo interno do PostgreSQL. O armazenamento local mantém seu mecanismo anterior.
+
+O navegador só reconstrói o histórico quando os registros mudam. A sincronização adaptativa do campo continua com respostas pequenas quando nada mudou, sem transmitir todos os elencos a cada consulta. Não há novas dependências nem tabelas. Não foi medido o ganho de latência na hospedagem real.
+
+### Testar e publicar
+
+Leia **TESTE_E_BACKUP.md**. Extraia o pacote em uma pasta nova e abra **TESTAR_LOCAL.cmd** (Node.js/npm necessários). Entre em http://127.0.0.1:3100 com **goyb / teste123**. O teste tem dois saves: **Carreira em andamento — Grupão FC** e **Demonstração — carreira 2026**. O iniciador usa arquivos separados e desativa Supabase/Discord. Dados já existentes na pasta de teste não são sobrescritos.
+
+Guarde o ZIP da v4.8.18 e backups antes de atualizar. Backups novos incluem a carreira; restauram em uma cópia com partidas pausadas. Backups antigos continuam aceitos. Voltar somente o código não reverte alterações nos dados. Preserve as variáveis da hospedagem; não configure TEST_MODE no site real.
+
+Validação e limites constam em **VALIDACAO_4_8_19.txt**. Nenhuma publicação ou mensagem ao Discord é feita automaticamente.
 
 ## Versão 4.8.18 — Lixeira de fichas do RPG
 

@@ -35,6 +35,7 @@ const discordBot=discordModule.mountInteractions({app,express,readers:discordMod
 app.use(express.json({ limit: '30kb' }));
 require('./discord_updates').mountUpdates({app,auth,admin,db,dataDir:path.dirname(DATA_FILE),store:discordStore});
 discordModule.mountBotAdmin({app,auth,admin,bot:discordBot});
+app.get('/api/runtime',(req,res)=>res.json({testMode:process.env.TEST_MODE==='1',version:require('./package.json').version}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 function localLoad() { try { return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8')); } catch { return {}; } }
@@ -129,4 +130,4 @@ io.on('connection',socket=>{
   socket.on('disconnect',()=>{const r=rooms.get(socket.data.roomCode),p=r?.players.get(socket.id);if(!r||!p)return;p.connected=false;p.ready=false;r.messages.push({id:crypto.randomUUID(),nick:'Sistema',text:`${p.nick} desconectou.`,time:Date.now()});if(r.hostId===socket.id){const next=active(r)[0];if(next)r.hostId=next.id;}whoGame.connectionChanged(r);broadcast(r);setTimeout(()=>{if(!rooms.has(r.code)||p.connected)return;if(r.category==='who'&&r.state==='who'&&active(r).length)return;r.players.delete(p.id);if(!r.players.size){stopTimer(r);rooms.delete(r.code);}else broadcast(r);},120000);});
 });
 
-initStore().then(()=>rpg.init()).then(()=>server.listen(PORT,()=>console.log(`Grupão Minigames em http://localhost:${PORT} (${db?'PostgreSQL':'arquivo local'})`))).catch(error=>{console.error('Não foi possível conectar ao banco de dados:',error);process.exit(1);});
+initStore().then(()=>rpg.init()).then(()=>server.listen(PORT,process.env.HOST||undefined,()=>console.log(`Grupão Minigames em http://localhost:${PORT} (${db?'PostgreSQL':'arquivo local'})`))).catch(error=>{console.error('Não foi possível conectar ao banco de dados:',error);process.exit(1);});
