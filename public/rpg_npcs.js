@@ -14,6 +14,7 @@
  function missing(formation,selected){const slots=[...formations[formation]];if(!slots.length||selected.length>7||selected.filter(s=>s.position==='Goleiro').length>1)throw Error('Selecione até sete fichas, com no máximo um goleiro.');for(const s of [...selected].sort((a,b)=>(a.position==='Goleiro'?-1:1)-(b.position==='Goleiro'?-1:1))){let i=slots.indexOf(s.position);if(i<0&&s.position!=='Goleiro')i=slots.findIndex(p=>p!=='Goleiro');if(i<0)throw Error('Não foi possível encaixar as fichas.');slots.splice(i,1);}return slots;}
  if(typeof module!=='undefined')module.exports={generate,missing,formations};
  if(typeof window==='undefined')return;
+ window.GrupaoNpc={generate,missing,formations};
  window.openNpcGenerator=({campaign,catalog,save,back})=>{
  const root=document.getElementById('rpgView'),entries=Object.entries({...campaign.members,...campaign.extras}).filter(([,m])=>m.sheet),approved=entries.filter(([,m])=>m.sheet.approved);let drafts=[],requestId='',busy=false;
  const options=(a,v)=>a.map(x=>`<option ${x===v?'selected':''}>${esc(x)}</option>`).join('');
